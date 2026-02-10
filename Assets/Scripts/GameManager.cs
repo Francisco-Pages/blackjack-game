@@ -1,8 +1,6 @@
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.XR;
 using System.Collections;
-using Unity.AppUI.UI;
+
 
 
 public class GameManager : MonoBehaviour
