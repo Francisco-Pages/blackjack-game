@@ -237,6 +237,7 @@ public class HorizontalCardHolder : MonoBehaviour
 
         for (int i=cards.Count-1; i>=0; i--)
         {
+            cards[i].cardVisual.DOKill();
             Destroy(cards[i].transform.parent.gameObject);
             cards.RemoveAt(i);
             yield return new WaitForSecondsRealtime(.5f);
