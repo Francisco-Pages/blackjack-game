@@ -18,6 +18,32 @@ public class DeckManager : MonoBehaviour
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private Sprite cardBack;
 
+    public int runningCount;
+    public List<CardVisual> faceDownCards;
+
+    // private void CalculateRunningCount()
+    // {
+    //     foreach (CardData card in deckData)
+    //     {
+    //         runningCount += GetCardCountValue(card);
+    //     }
+    // }
+
+    public int GetCardCountValue(CardData cardData)
+    {
+        if ((int)cardData.rank >= 2 && (int)cardData.rank <= 6)
+        {
+            return 1;
+        }
+        if ((int)cardData.rank == 1 || (int)cardData.rank >= 10)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
 
     public CardVisual DealFaceCard(GameObject cardGroup, bool faceUp=true, bool animate=true)
     {
@@ -54,15 +80,22 @@ public class DeckManager : MonoBehaviour
         newCardScript.cardVisual = cardVisual;
         cardVisual.Initialize(newCardScript);
 
+        
         if (!faceUp)
         {
             cardVisual.SetFaceUp(false, false);
+            faceDownCards.Add(cardVisual);
+        }
+        else
+        {
+            runningCount += GetCardCountValue(newCardScript.cardData);
         }
 
         newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
         newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
         newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
         newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);        
+        
         
         return cardVisual;
     }

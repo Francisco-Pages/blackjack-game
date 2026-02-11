@@ -112,7 +112,12 @@ public class GameManager : MonoBehaviour
         Debug.Log("Dealer's turn.");
         isPlayerTurn = false;
         if (dealerHoleCard != null)
+        {
             dealerHoleCard.SetFaceUp(true);
+            deckManager.runningCount += deckManager.GetCardCountValue(dealerHoleCard.parentCard.cardData);
+            deckManager.faceDownCards.Remove(dealerHoleCard);
+            
+        }
         StartCoroutine(DealerPlay());
     }
     private void ResolveRound()
