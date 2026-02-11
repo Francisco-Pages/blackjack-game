@@ -15,6 +15,11 @@ public class HorizontalCardHolder : MonoBehaviour
     public List<Card> cards;
     [SerializeField] private Card selectedCard;
     [SerializeReference] private Card hoveredCard;
+    [SerializeField] private GameObject cardVisualPrefab;
+    private VisualCardsHandler visualHandler;
+    [HideInInspector] public CardVisual cardVisual;    
+    private Canvas canvas;
+
 
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
@@ -218,23 +223,17 @@ public class HorizontalCardHolder : MonoBehaviour
         bool swapIsRight = cards[index].ParentIndex() > selectedCard.ParentIndex();
         cards[index].cardVisual.Swap(swapIsRight ? -1 : 1);
 
-        //Updated Visual Indexes
-        foreach (Card card in cards)
-        {
-            Debug.Log("card name: " + card.name + ". child count: " + transform.childCount);
-            card.cardVisual.UpdateIndex(transform.childCount);
-        }
+        
+        UpdateCardsList();
     }
 
-    public void EmptyCardHolder()
+    public IEnumerator EmptyCardHolder()
     {
-        StartCoroutine(RemoveCards());
+        yield return StartCoroutine(RemoveCards());
     }
 
     IEnumerator RemoveCards()
     {
-        yield return new WaitForSecondsRealtime(.5f);
-
         for (int i=cards.Count-1; i>=0; i--)
         {
             cards[i].cardVisual.DOKill();
@@ -242,5 +241,65 @@ public class HorizontalCardHolder : MonoBehaviour
             cards.RemoveAt(i);
             yield return new WaitForSecondsRealtime(.2f);
         }
+    }
+
+
+    public CardVisual PlayCardFromHand(GameObject cardGroup)
+    {
+        if (cards.Count == 0)
+        {
+            return null;
+        }
+
+        Card playedCard = cards[0];
+
+
+        // create a slot prefab that holds the card's position, 
+        // and get the card object inside the card prefab
+        GameObject newCard = Instantiate(slotPrefab, cardGroup.transform);
+        Card newCardScript = newCard.GetComponentInChildren<Card>();
+        
+        newCardScript.cardData = cards[0].cardData;
+        newCardScript.name = cards[0].name;
+
+        Destroy(cards[0].transform.parent.gameObject);
+        cards.Remove(cards[0]);
+
+        // get the card area to anchor the cards to 
+        // and add the card to that card area cards list
+        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
+        cardGroupScript.cards.Add(newCardScript);
+        cardGroupScript.UpdateCardsList();
+        // give it an individual name, in this case the number of the card from the deck
+        
+        // get the visualHandler and canvas references
+        visualHandler = FindFirstObjectByType<VisualCardsHandler>();
+        canvas = GetComponentInParent<Canvas>();
+        
+        // set the visuals to the card
+        cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
+        cardVisual.name = newCardScript.name;
+        newCardScript.cardVisual = cardVisual;
+        cardVisual.Initialize(newCardScript);
+
+        cardGroupScript.UpdateCardsList();
+        
+        // if (!faceUp)
+        // {
+        //     cardVisual.SetFaceUp(false, false);
+        //     faceDownCards.Add(cardVisual);
+        // }
+        // else
+        // {
+        //     runningCount += GetCardCountValue(newCardScript.cardData);
+        // }
+
+        newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
+        newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
+        newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
+        newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);        
+        
+        
+        return cardVisual;
     }
 }

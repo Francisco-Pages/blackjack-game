@@ -9,13 +9,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private GameObject playingCardGroup;
     [SerializeField] private GameObject jokerCardGroup;
+    [SerializeField] private GameObject consumableCardGroup;
     private HorizontalCardHolder playerCardHolderScript;
     private HorizontalCardHolder dealerCardHolderScript;
+    private HorizontalCardHolder handCardHolderScript;
     private CardVisual dealerHoleCard;
 
     [SerializeField] private BetManager betManager;
 
     private bool isPlayerTurn = false;
+    [SerializeField] private int turnNumber = 0;
 
     public enum GameState
     {
@@ -47,6 +50,7 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.StartRound);
         playerCardHolderScript = playingCardGroup.GetComponent<HorizontalCardHolder>();
         dealerCardHolderScript = jokerCardGroup.GetComponent<HorizontalCardHolder>();
+        handCardHolderScript = consumableCardGroup.GetComponent<HorizontalCardHolder>();
     }
 
     public void ChangeState(GameState newState)
@@ -78,13 +82,37 @@ public class GameManager : MonoBehaviour
 
     private void StartRound()
     {
-        
+        if (turnNumber == 0)
+        {
+            deckManager.deckData.Shuffle();
+            StartCoroutine(DealInitialCardsToHand());
+        }
+        else
+        {
+            StartCoroutine(DealCardToHand());
+        }
+        turnNumber++;
+
+        IEnumerator DealInitialCardsToHand()
+        {
+            yield return new WaitForSecondsRealtime(0.2f);
+            deckManager.DealFaceCard(consumableCardGroup);
+            yield return new WaitForSecondsRealtime(0.2f);
+            deckManager.DealFaceCard(consumableCardGroup);
+            yield return new WaitForSecondsRealtime(0.2f);
+            deckManager.DealFaceCard(consumableCardGroup);
+        }
+        IEnumerator DealCardToHand()
+        {
+            deckManager.DealFaceCard(consumableCardGroup);
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
     }
     private void Dealing()
     {
         betManager.CommitBet();
 
-        deckManager.deckData.Shuffle();
+        // deckManager.deckData.Shuffle();
         StartCoroutine(DealInitialHand());
 
 
@@ -161,24 +189,24 @@ public class GameManager : MonoBehaviour
     {
         // delete all cards (or send them to a discard pile)
         StartCoroutine(RemoveCardsSequential());
-        ChangeState(GameState.StartRound);
 
-        IEnumerator RemoveCardsSequential()
+    }
+    private IEnumerator RemoveCardsSequential()
+    {
+        foreach (Card card in playerCardHolderScript.cards)
         {
-            foreach (Card card in playerCardHolderScript.cards)
-            {
-                card.cardVisual.SetFaceUp(false);
-            }
-            foreach (Card card in dealerCardHolderScript.cards)
-            {
-                card.cardVisual.SetFaceUp(false);
-            }
-            yield return new WaitForSecondsRealtime(0.5f);
-            playerCardHolderScript.EmptyCardHolder();
-            yield return new WaitForSecondsRealtime(0.5f);
-            dealerCardHolderScript.EmptyCardHolder();
-            
+            card.cardVisual.SetFaceUp(false);
         }
+        foreach (Card card in dealerCardHolderScript.cards)
+        {
+            card.cardVisual.SetFaceUp(false);
+        }
+        yield return new WaitForSecondsRealtime(0.2f);
+        yield return (playerCardHolderScript.EmptyCardHolder());
+        yield return new WaitForSecondsRealtime(0.2f);
+        yield return (dealerCardHolderScript.EmptyCardHolder());
+        yield return new WaitForSecondsRealtime(0.5f);
+        ChangeState(GameState.StartRound);
     }
 
     public void OnClickedDealInitialHand()
@@ -230,6 +258,16 @@ public class GameManager : MonoBehaviour
         return;
 
         betManager.IncreaseBet();
+    }
+
+    public void OnClickedPlayCard()
+    {
+        if (CurrentState != GameState.PlayerTurn)
+        {
+            return;
+        }
+        handCardHolderScript.PlayCardFromHand(playingCardGroup);
+        CheckPlayerHand();
     }
 
     private IEnumerator DealerPlay()

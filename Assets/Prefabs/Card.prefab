@@ -61,9 +61,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72d103f73c46c407db068681e2811968, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instantiateVisual: 1
+  instantiateVisual: 0
   cardData: {fileID: 0}
-  pointValue: 0
   moveSpeedLimit: 100
   selected: 0
   selectionOffset: 25
@@ -93,6 +92,8 @@ MonoBehaviour:
   SelectEvent:
     m_PersistentCalls:
       m_Calls: []
+  CurrentHolder: {fileID: 0}
+  OriginalHolder: {fileID: 0}
 --- !u!114 &7486306067316991545
 MonoBehaviour:
   m_ObjectHideFlags: 0
