@@ -165,6 +165,14 @@ public class GameManager : MonoBehaviour
 
         IEnumerator RemoveCardsSequential()
         {
+            foreach (Card card in playerCardHolderScript.cards)
+            {
+                card.cardVisual.SetFaceUp(false);
+            }
+            foreach (Card card in dealerCardHolderScript.cards)
+            {
+                card.cardVisual.SetFaceUp(false);
+            }
             yield return new WaitForSecondsRealtime(0.5f);
             playerCardHolderScript.EmptyCardHolder();
             yield return new WaitForSecondsRealtime(0.5f);
