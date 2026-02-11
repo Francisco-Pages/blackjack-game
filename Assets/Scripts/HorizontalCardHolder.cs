@@ -240,7 +240,7 @@ public class HorizontalCardHolder : MonoBehaviour
             cards[i].cardVisual.DOKill();
             Destroy(cards[i].transform.parent.gameObject);
             cards.RemoveAt(i);
-            yield return new WaitForSecondsRealtime(.5f);
+            yield return new WaitForSecondsRealtime(.2f);
         }
     }
 }

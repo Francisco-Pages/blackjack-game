@@ -160,9 +160,17 @@ public class GameManager : MonoBehaviour
     private void EndRound()
     {
         // delete all cards (or send them to a discard pile)
-        playerCardHolderScript.EmptyCardHolder();
-        dealerCardHolderScript.EmptyCardHolder();
+        StartCoroutine(RemoveCardsSequential());
         ChangeState(GameState.StartRound);
+
+        IEnumerator RemoveCardsSequential()
+        {
+            yield return new WaitForSecondsRealtime(0.5f);
+            playerCardHolderScript.EmptyCardHolder();
+            yield return new WaitForSecondsRealtime(0.5f);
+            dealerCardHolderScript.EmptyCardHolder();
+            
+        }
     }
 
     public void OnClickedDealInitialHand()
