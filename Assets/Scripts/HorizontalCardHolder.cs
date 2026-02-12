@@ -25,56 +25,6 @@ public class HorizontalCardHolder : MonoBehaviour
     [SerializeField] private bool tweenCardReturn = true;
     public int totalValue = 0;
     public int aceCount = 0;
-    // public int softTotal = 0;
-
-    // public void Initialize()
-    // {
-    //     // check if there are fewer cards in the deck than cardsToSpawn
-    //     List<CardData> currentDeck = deck.GetComponent<Deck>().deckData;
-
-    //     if (currentDeck.Count < cardsToSpawn)
-    //     {
-    //         cardsToSpawn = currentDeck.Count;
-    //     }
-
-    //     for (int i = 0; i < cardsToSpawn; i++)
-    //     {
-    //         Instantiate(slotPrefab, transform);
-    //     }
-
-    //     rect = GetComponent<RectTransform>();
-    //     cards = GetComponentsInChildren<Card>().ToList();
-    //     int cardCount = 0; 
-    //     foreach (Card card in cards)
-    //     {
-    //         // Assign a CardData from the deck 
-    //         card.cardData = currentDeck[0];
-    //         // Remove that card from the deck
-    //         currentDeck.RemoveAt(0);
-
-    //         // Get CardVisual
-    //         CardVisual visual = card.GetComponentInChildren<CardVisual>();
-    //         card.cardVisual = visual;
-    //         card.PointerEnterEvent.AddListener(CardPointerEnter);
-    //         card.PointerExitEvent.AddListener(CardPointerExit);
-    //         card.BeginDragEvent.AddListener(BeginDrag);
-    //         card.EndDragEvent.AddListener(EndDrag);
-    //         card.name = cardCount.ToString();
-    //         cardCount++;
-    //     }
-
-    //     StartCoroutine(Frame());
-
-    //     IEnumerator Frame()
-    //     {
-    //         yield return new WaitForSecondsRealtime(.1f);
-    //         for (int i = 0; i < cards.Count; i++)
-    //         {
-    //             if (cards[i].cardVisual != null)
-    //                 cards[i].cardVisual.UpdateIndex(transform.childCount);
-    //         }
-    //     }
-    // }
 
 
     public void Start()
@@ -144,6 +94,17 @@ public class HorizontalCardHolder : MonoBehaviour
             else
             {
                 totalValue += (int)card.cardData.rank;
+            }
+        }
+        StartCoroutine(Frame());
+
+        IEnumerator Frame()
+        {
+            yield return new WaitForSecondsRealtime(.1f);
+            for (int i = 0; i < cards.Count; i++)
+            {
+                if (cards[i].cardVisual != null)
+                    cards[i].cardVisual.UpdateIndex(transform.childCount);
             }
         }
     }
@@ -224,6 +185,10 @@ public class HorizontalCardHolder : MonoBehaviour
         cards[index].cardVisual.Swap(swapIsRight ? -1 : 1);
 
         
+        foreach (Card card in cards)
+        {
+            card.cardVisual.UpdateIndex(transform.childCount);
+        }
         UpdateCardsList();
     }
 
@@ -259,28 +224,36 @@ public class HorizontalCardHolder : MonoBehaviour
         GameObject newCard = Instantiate(slotPrefab, cardGroup.transform);
         Card newCardScript = newCard.GetComponentInChildren<Card>();
         
-        newCardScript.cardData = cards[0].cardData;
-        newCardScript.name = cards[0].name;
+        newCardScript.cardData = playedCard.cardData;
+        newCardScript.name = playedCard.name;
 
-        Destroy(cards[0].transform.parent.gameObject);
-        cards.Remove(cards[0]);
+        playedCard.cardVisual.parentCard = newCardScript;
+        playedCard.cardVisual.cardTransform = newCardScript.transform;
+
+        newCardScript.cardVisual = playedCard.cardVisual;
+        playedCard.cardVisual = null;
+
+        Destroy(playedCard.transform.parent.gameObject);
+        cards.Remove(playedCard);
 
         // get the card area to anchor the cards to 
         // and add the card to that card area cards list
         HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
         cardGroupScript.cards.Add(newCardScript);
+
+
         cardGroupScript.UpdateCardsList();
         // give it an individual name, in this case the number of the card from the deck
         
         // get the visualHandler and canvas references
-        visualHandler = FindFirstObjectByType<VisualCardsHandler>();
-        canvas = GetComponentInParent<Canvas>();
+        // visualHandler = FindFirstObjectByType<VisualCardsHandler>();
+        // canvas = GetComponentInParent<Canvas>();
         
-        // set the visuals to the card
-        cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
-        cardVisual.name = newCardScript.name;
-        newCardScript.cardVisual = cardVisual;
-        cardVisual.Initialize(newCardScript);
+        // // set the visuals to the card
+        // cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
+        // cardVisual.name = newCardScript.name;
+        // newCardScript.cardVisual = cardVisual;
+        // cardVisual.Initialize(newCardScript);
 
         cardGroupScript.UpdateCardsList();
         

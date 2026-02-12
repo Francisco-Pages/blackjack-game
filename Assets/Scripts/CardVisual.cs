@@ -264,7 +264,7 @@ public class CardVisual : MonoBehaviour
 
     [Header("Card")]
     public Card parentCard;
-    private Transform cardTransform;
+    public Transform cardTransform;
     private Vector3 rotationDelta;
     private int savedIndex;
     Vector3 movementDelta;

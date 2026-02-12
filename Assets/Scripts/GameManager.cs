@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     private CardVisual dealerHoleCard;
 
     [SerializeField] private BetManager betManager;
+    [SerializeField] private GamestateTextManager gsText;
 
     private bool isPlayerTurn = false;
     [SerializeField] private int turnNumber = 0;
@@ -60,12 +61,19 @@ public class GameManager : MonoBehaviour
         switch (CurrentState)
         {
             case GameState.StartRound:
+                gsText.UpdateGamestateText("");
+                if (turnNumber == 0)
+                    gsText.UpdateGamestateText("Make your bet and press the deck to start.");
                 StartRound();
                 break;
             case GameState.Dealing:
+                if (turnNumber == 1)
+                    gsText.UpdateGamestateText("Good...Good.");
                 Dealing();
                 break;
             case GameState.PlayerTurn:
+                if (turnNumber == 1)
+                gsText.UpdateGamestateText("Now, play a card from your hand.");    
                 PlayerTurn();
                 break;
             case GameState.DealerTurn:
@@ -159,27 +167,27 @@ public class GameManager : MonoBehaviour
         if (playerValue > 21)
         {
             result = RoundResult.DealerWin;
-            Debug.Log("Dealer wins.");
+            gsText.UpdateGamestateText("Dealer wins.");
         }
         else if (dealerValue > 21)
         {
             result = RoundResult.PlayerWin;
-            Debug.Log("Player wins.");
+            gsText.UpdateGamestateText("Player wins.");
         }
         else if (playerValue > dealerValue)
         {
             result = RoundResult.PlayerWin;
-            Debug.Log("Player wins.");
+            gsText.UpdateGamestateText("Player wins.");
         }
         else if (dealerValue > playerValue)
         {
             result = RoundResult.DealerWin;
-            Debug.Log("Dealer wins.");
+            gsText.UpdateGamestateText("Dealer wins.");
         }
         else
         {
             result = RoundResult.Push;
-            Debug.Log("Push.");
+            gsText.UpdateGamestateText("Push.");
         }
 
         betManager.ResolveBet(result);
@@ -189,7 +197,6 @@ public class GameManager : MonoBehaviour
     {
         // delete all cards (or send them to a discard pile)
         StartCoroutine(RemoveCardsSequential());
-
     }
     private IEnumerator RemoveCardsSequential()
     {
@@ -205,8 +212,9 @@ public class GameManager : MonoBehaviour
         yield return (playerCardHolderScript.EmptyCardHolder());
         yield return new WaitForSecondsRealtime(0.2f);
         yield return (dealerCardHolderScript.EmptyCardHolder());
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(1f);
         ChangeState(GameState.StartRound);
+
     }
 
     public void OnClickedDealInitialHand()
@@ -229,13 +237,13 @@ public class GameManager : MonoBehaviour
 
         if (handValue > 21)
         {
-            Debug.Log("Player busts!");
+            gsText.UpdateGamestateText("Player busts!");
             EndPlayerTurn();
             ChangeState(GameState.ResolveRound);
         }
         else if (handValue == 21)
         {
-            Debug.Log("Player hits 21!");
+            gsText.UpdateGamestateText("Player hits 21!");
             EndPlayerTurn();
             ChangeState(GameState.DealerTurn);
         }
@@ -268,6 +276,8 @@ public class GameManager : MonoBehaviour
         }
         handCardHolderScript.PlayCardFromHand(playingCardGroup);
         CheckPlayerHand();
+        if (turnNumber == 1)
+            gsText.UpdateGamestateText("Good...you didn't go over 21...or did you?");
     }
 
     private IEnumerator DealerPlay()
@@ -276,11 +286,11 @@ public class GameManager : MonoBehaviour
 
         int dealerValue = dealerCardHolderScript.GetHandValue();
 
-        Debug.Log("Dealer starting value: " + dealerValue);
+        gsText.UpdateGamestateText("Dealer starting value: " + dealerValue);
 
         while (dealerValue < 17)
         {
-            Debug.Log("Dealer hits.");
+            gsText.UpdateGamestateText("Dealer hits.");
 
             deckManager.DealFaceCard(jokerCardGroup);
 
@@ -288,16 +298,16 @@ public class GameManager : MonoBehaviour
 
             dealerValue = dealerCardHolderScript.GetHandValue();
 
-            Debug.Log("Dealer value now: " + dealerValue);
+            gsText.UpdateGamestateText("Dealer value now: " + dealerValue);
         }
 
         if (dealerValue > 21)
         {
-            Debug.Log("Dealer busts!");
+            gsText.UpdateGamestateText("Dealer busts!");
         }
         else
         {
-            Debug.Log("Dealer stands at " + dealerValue);
+            gsText.UpdateGamestateText("Dealer stands at " + dealerValue);
         }
 
         yield return new WaitForSeconds(0.5f);
