@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
-
-
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private BetManager betManager;
     [SerializeField] private GamestateTextManager gsText;
+    [SerializeField] private GameObject gameOverScreen;
+    [SerializeField] private TMP_Text gameOverReason;
+    private string gameOverText;
 
     private bool isPlayerTurn = false;
     [SerializeField] private int turnNumber = 0;
@@ -28,7 +31,8 @@ public class GameManager : MonoBehaviour
         PlayerTurn,
         DealerTurn,
         ResolveRound,
-        EndRound
+        EndRound,
+        GameOver
     }
 
     public static GameManager Instance;
@@ -73,7 +77,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.PlayerTurn:
                 if (turnNumber == 1)
-                gsText.UpdateGamestateText("Now, play a card from your hand.");    
+                    gsText.UpdateGamestateText("Now, play a card from your hand.");    
                 PlayerTurn();
                 break;
             case GameState.DealerTurn:
@@ -84,6 +88,9 @@ public class GameManager : MonoBehaviour
                 break;   
             case GameState.EndRound:
                 EndRound();
+                break;
+            case GameState.GameOver:
+                GameOver();
                 break;
         }
     }
@@ -193,10 +200,42 @@ public class GameManager : MonoBehaviour
         betManager.ResolveBet(result);
         ChangeState(GameState.EndRound);
     }
+    
     private void EndRound()
     {
         // delete all cards (or send them to a discard pile)
         StartCoroutine(RemoveCardsSequential());
+
+        if (betManager.playerChipCount <= 0)
+        {
+            gameOverText = "You lost all your chips.";
+            ChangeState(GameState.GameOver);
+            return;
+        }
+        if (deckManager.deckData.Count < 5)
+        {
+            gameOverText = "The deck is out of cards.";
+            ChangeState(GameState.GameOver);
+            return;
+        }
+        if (betManager.dealerChipCount <= 0)
+        {
+            gameOverText = "You Win!";
+            ChangeState(GameState.GameOver);
+            return;
+        }
+        
+    }
+
+    private void GameOver()
+    {
+        gameOverScreen.SetActive(true);
+        gameOverReason.text = gameOverText;
+        StopAllCoroutines();
+    }
+    public void ReloadGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     private IEnumerator RemoveCardsSequential()
     {
@@ -278,6 +317,10 @@ public class GameManager : MonoBehaviour
         CheckPlayerHand();
         if (turnNumber == 1)
             gsText.UpdateGamestateText("Good...you didn't go over 21...or did you?");
+    }
+    public void OnClickedRestart()
+    {
+        ReloadGame();
     }
 
     private IEnumerator DealerPlay()
