@@ -23,6 +23,9 @@ public class DeckManager : MonoBehaviour
     public int runningCount;
     public List<CardVisual> faceDownCards;
 
+    public AudioSource audioSource;
+    public AudioClip clip;
+
     // private void CalculateRunningCount()
     // {
     //     foreach (CardData card in deckData)
@@ -87,6 +90,7 @@ public class DeckManager : MonoBehaviour
         newCardScript.cardVisual = cardVisual;
         cardVisual.Initialize(newCardScript);
 
+        audioSource.PlayOneShot(clip);
         
         if (!faceUp)
         {
