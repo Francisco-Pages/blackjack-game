@@ -3840,6 +3840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BetManager
   playerChipCount: 100
   dealerChipCount: 100
+  betMultiplier: 30
   currentBet: 0
   minBet: 0
   maxBet: 0

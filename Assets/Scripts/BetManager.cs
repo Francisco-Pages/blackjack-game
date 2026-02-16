@@ -7,6 +7,7 @@ public class BetManager : MonoBehaviour
     public int dealerChipCount = 1000;
 
     [Header("Betting")]
+    public int betMultiplier = 20;
     public int currentBet;
     public int minBet;
     public int maxBet;
@@ -21,7 +22,7 @@ public class BetManager : MonoBehaviour
     }
     private void Start()
     {
-        RecalculateBets();
+        // RecalculateBets();
         UpdateVisuals();
         chipBar.SetNetProgressFromChips(playerChipCount, dealerChipCount);
     }
@@ -57,27 +58,46 @@ public class BetManager : MonoBehaviour
     /// <summary>
     /// Resolve outcome after round ends
     /// </summary>
-    public void ResolveBet(RoundResult result)
+    public void ResolveBet(RoundResult result, int handsDiff)
     {
         switch (result)
         {
+            case RoundResult.BlackJack:
+                playerChipCount += handsDiff * betMultiplier * 2;
+                dealerChipCount -= handsDiff * betMultiplier * 2;
+                break;
             case RoundResult.PlayerWin:
-                playerChipCount += currentBet * 2;
-                dealerChipCount -= currentBet;
+                playerChipCount += handsDiff * betMultiplier;
+                dealerChipCount -= handsDiff * betMultiplier;
                 break;
-
-            case RoundResult.Push:
-                playerChipCount += currentBet;
-                break;
-
             case RoundResult.DealerWin:
-                dealerChipCount += currentBet;
+                dealerChipCount += handsDiff * betMultiplier;
+                playerChipCount -= handsDiff * betMultiplier;
+                break;
+            case RoundResult.PlayerBust:
+                playerChipCount -= handsDiff * betMultiplier;
+                dealerChipCount += handsDiff * betMultiplier;
+                break;
+            case RoundResult.DealerBust:
+                playerChipCount += handsDiff * betMultiplier;
+                dealerChipCount -= handsDiff * betMultiplier;
+                break;
+            case RoundResult.Push:
                 break;
         }
 
         currentBet = 0;
         UpdateVisuals();
     }
+
+    public void CalculateScore(int result)
+    {
+        playerChipCount += result * betMultiplier;
+        dealerChipCount -= result * betMultiplier;
+        UpdateVisuals();
+    }
+
+
 
     private void RecalculateBets()
     {
@@ -96,7 +116,10 @@ public class BetManager : MonoBehaviour
 
 public enum RoundResult
 {
+    BlackJack,
     PlayerWin,
     DealerWin,
-    Push
+    Push,
+    PlayerBust,
+    DealerBust
 }

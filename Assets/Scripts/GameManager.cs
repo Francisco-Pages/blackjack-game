@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -125,7 +126,7 @@ public class GameManager : MonoBehaviour
     }
     private void Dealing()
     {
-        betManager.CommitBet();
+        // betManager.CommitBet();
 
         // deckManager.deckData.Shuffle();
         StartCoroutine(DealInitialHand());
@@ -171,15 +172,22 @@ public class GameManager : MonoBehaviour
 
         RoundResult result;
 
-        if (playerValue > 21)
+        if (playerCardHolderScript.CheckBlackjack())
         {
-            result = RoundResult.DealerWin;
-            gsText.UpdateGamestateText("Dealer wins.");
+            result = RoundResult.BlackJack;
+            gsText.UpdateGamestateText("Blackjack!");
+        } 
+        else if (playerValue > 21)
+        {
+            result = RoundResult.PlayerBust;
+            playerValue = 0;
+            gsText.UpdateGamestateText("Player busts. Dealer wins.");
         }
         else if (dealerValue > 21)
         {
-            result = RoundResult.PlayerWin;
-            gsText.UpdateGamestateText("Player wins.");
+            result = RoundResult.DealerBust;
+            dealerValue = 0;
+            gsText.UpdateGamestateText("Dealer busts. Player wins.");
         }
         else if (playerValue > dealerValue)
         {
@@ -197,7 +205,9 @@ public class GameManager : MonoBehaviour
             gsText.UpdateGamestateText("Push.");
         }
 
-        betManager.ResolveBet(result);
+        int handsDiff = Math.Abs(playerValue - dealerValue);
+        betManager.ResolveBet(result, handsDiff);
+        // betManager.CalculateScore(resultScore);
         ChangeState(GameState.EndRound);
     }
     
@@ -280,12 +290,12 @@ public class GameManager : MonoBehaviour
             EndPlayerTurn();
             ChangeState(GameState.ResolveRound);
         }
-        else if (handValue == 21)
-        {
-            gsText.UpdateGamestateText("Player hits 21!");
-            EndPlayerTurn();
-            ChangeState(GameState.DealerTurn);
-        }
+        // else if (handValue == 21)
+        // {
+        //     gsText.UpdateGamestateText("Player hits 21!");
+        //     EndPlayerTurn();
+        //     ChangeState(GameState.DealerTurn);
+        // }
     }
     private void EndPlayerTurn()
     {
@@ -299,13 +309,13 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.DealerTurn);
     }
 
-    public void OnClickedBet()
-    {
-        if (CurrentState != GameState.StartRound)
-        return;
+    // public void OnClickedBet()
+    // {
+    //     if (CurrentState != GameState.StartRound)
+    //     return;
 
-        betManager.IncreaseBet();
-    }
+    //     betManager.IncreaseBet();
+    // }
 
     public void OnClickedPlayCard()
     {

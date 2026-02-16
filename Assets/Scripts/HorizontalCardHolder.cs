@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using DG.Tweening;
 using System.Linq;
+using TMPro;
 
 public class HorizontalCardHolder : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class HorizontalCardHolder : MonoBehaviour
     private VisualCardsHandler visualHandler;
     [HideInInspector] public CardVisual cardVisual;    
     private Canvas canvas;
+    [SerializeField] private TMP_Text handTotalVisual;
 
 
     bool isCrossing = false;
@@ -32,6 +34,14 @@ public class HorizontalCardHolder : MonoBehaviour
         rect = GetComponent<RectTransform>();
     }
 
+    public bool CheckBlackjack()
+    {
+        if (cards.Count == 2 && GetHandValue() == 21)
+        {
+            return true;
+        }
+        return false;
+    }
     public int GetHandValue()
     {
         int currentAceCount = aceCount;
@@ -41,7 +51,8 @@ public class HorizontalCardHolder : MonoBehaviour
             currentTotalValue -= 10;
             currentAceCount--;
         }
-        
+        handTotalVisual.text = currentTotalValue.ToString();
+
         return currentTotalValue;
     }
 
