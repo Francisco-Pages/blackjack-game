@@ -233,6 +233,14 @@ public class HorizontalCardHolder : MonoBehaviour
         newCardScript.cardVisual = playedCard.cardVisual;
         playedCard.cardVisual = null;
 
+        // playedCard.cardVisual.parentCard.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
+        // // parentCard.PointerExitEvent.AddListener(PointerExit);
+        // // parentCard.BeginDragEvent.AddListener(BeginDrag);
+        // // parentCard.EndDragEvent.AddListener(EndDrag);
+        // // parentCard.PointerDownEvent.AddListener(PointerDown);
+        // // parentCard.PointerUpEvent.AddListener(PointerUp);
+        // // parentCard.SelectEvent.AddListener(Select);
+
         Destroy(playedCard.transform.parent.gameObject);
         cards.Remove(playedCard);
 
@@ -267,12 +275,20 @@ public class HorizontalCardHolder : MonoBehaviour
         //     runningCount += GetCardCountValue(newCardScript.cardData);
         // }
 
+        // card object animations
         newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
         newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
         newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
-        newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);        
-        
-        
+        newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);  
+
+        // card visual object animations
+        newCardScript.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
+        newCardScript.PointerExitEvent.AddListener(newCardScript.cardVisual.PointerExit);
+        newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
+        newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
+        newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
+        newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
+        newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
         return cardVisual;
     }
 }

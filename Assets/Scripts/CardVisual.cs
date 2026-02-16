@@ -547,7 +547,7 @@ public class CardVisual : MonoBehaviour
        INTERACTION
     ========================= */
 
-    private void Select(Card card, bool state)
+    public void Select(Card card, bool state)
     {
         DOTween.Kill(2, true);
 
@@ -568,6 +568,7 @@ public class CardVisual : MonoBehaviour
         ).SetId(2);
 
         if (scaleAnimations)
+            Debug.Log("Doing punch animation");
             transform.DOScale(scaleOnHover, scaleTransition)
                 .SetEase(scaleEase);
     }
@@ -586,7 +587,7 @@ public class CardVisual : MonoBehaviour
         ).SetId(3);
     }
 
-    private void BeginDrag(Card card)
+    public void BeginDrag(Card card)
     {
         if (scaleAnimations)
             transform.DOScale(scaleOnSelect, scaleTransition)
@@ -595,7 +596,7 @@ public class CardVisual : MonoBehaviour
         canvas.overrideSorting = true;
     }
 
-    private void EndDrag(Card card)
+    public void EndDrag(Card card)
     {
         canvas.overrideSorting = false;
 
@@ -603,7 +604,7 @@ public class CardVisual : MonoBehaviour
             .SetEase(scaleEase);
     }
 
-    private void PointerEnter(Card card)
+    public void PointerEnter(Card card)
     {
         if (scaleAnimations)
             transform.DOScale(scaleOnHover, scaleTransition)
@@ -619,14 +620,14 @@ public class CardVisual : MonoBehaviour
         ).SetId(2);
     }
 
-    private void PointerExit(Card card)
+    public void PointerExit(Card card)
     {
         if (!parentCard.wasDragged)
             transform.DOScale(1, scaleTransition)
                 .SetEase(scaleEase);
     }
 
-    private void PointerUp(Card card, bool longPress)
+    public void PointerUp(Card card, bool longPress)
     {
         if (scaleAnimations)
             transform.DOScale(
@@ -640,7 +641,7 @@ public class CardVisual : MonoBehaviour
         shadowCanvas.overrideSorting = true;
     }
 
-    private void PointerDown(Card card)
+    public void PointerDown(Card card)
     {
         if (scaleAnimations)
             transform.DOScale(scaleOnSelect, scaleTransition)
