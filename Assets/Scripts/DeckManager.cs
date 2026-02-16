@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.PlayerLoop;
 using Unity.VisualScripting;
 using UnityEngine.UI;
+using TMPro;
 public class DeckManager : MonoBehaviour
 {
 
@@ -11,6 +12,7 @@ public class DeckManager : MonoBehaviour
     public List<CardData> deckData;
     [SerializeField] private GameObject cardVisualPrefab;
 
+    [SerializeField] private TMP_Text cardsInDeckText;
     private VisualCardsHandler visualHandler;
     [HideInInspector] public CardVisual cardVisual;
 
@@ -28,6 +30,11 @@ public class DeckManager : MonoBehaviour
     //         runningCount += GetCardCountValue(card);
     //     }
     // }
+
+    private void Update()
+    {
+        cardsInDeckText.text = deckData.Count.ToString();
+    }
 
     public int GetCardCountValue(CardData cardData)
     {
