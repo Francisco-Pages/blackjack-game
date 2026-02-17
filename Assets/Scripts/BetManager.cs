@@ -27,37 +27,19 @@ public class BetManager : MonoBehaviour
         chipBar.SetNetProgressFromChips(playerChipCount, dealerChipCount);
     }
 
-    /// <summary>
-    /// Call this when Bet button is pressed
-    /// </summary>
-    public void IncreaseBet()
+    private void OnEnable()
     {
-        RecalculateBets();
-
-        int increment = minBet;
-
-        currentBet += increment;
-        currentBet = Mathf.Clamp(currentBet, minBet, maxBet);
-
-        Debug.Log($"Current Bet: {currentBet}");
-        // UpdateVisuals();
-        chipBar.SetNetProgressFromChips(playerChipCount-currentBet, dealerChipCount);
+        GameManager.OnRoundResolved += HandleRoundResolved;
     }
-
-    /// <summary>
-    /// Lock bet and subtract chips at start of round
-    /// </summary>
-    public void CommitBet()
+    private void OnDisable()
     {
-        currentBet = Mathf.Clamp(currentBet, minBet, maxBet);
-        playerChipCount -= currentBet;
-
-        UpdateVisuals();
+        GameManager.OnRoundResolved -= HandleRoundResolved;
     }
-
-    /// <summary>
-    /// Resolve outcome after round ends
-    /// </summary>
+    private void HandleRoundResolved(RoundResult result, int handsDiff)
+    {
+        ResolveBet(result, handsDiff);
+    }
+    
     public void ResolveBet(RoundResult result, int handsDiff)
     {
         switch (result)
@@ -89,15 +71,44 @@ public class BetManager : MonoBehaviour
         currentBet = 0;
         UpdateVisuals();
     }
+    private void UpdateVisuals()
+    {
+        chipBar.SetNetProgressFromChips(playerChipCount, dealerChipCount);
+    }
 
+    /// <summary>
+    /// Call this when Bet button is pressed
+    /// </summary>
+    public void IncreaseBet()
+    {
+        RecalculateBets();
+
+        int increment = minBet;
+
+        currentBet += increment;
+        currentBet = Mathf.Clamp(currentBet, minBet, maxBet);
+
+        Debug.Log($"Current Bet: {currentBet}");
+        // UpdateVisuals();
+        chipBar.SetNetProgressFromChips(playerChipCount-currentBet, dealerChipCount);
+    }
+
+    /// <summary>
+    /// Lock bet and subtract chips at start of round
+    /// </summary>
+    public void CommitBet()
+    {
+        currentBet = Mathf.Clamp(currentBet, minBet, maxBet);
+        playerChipCount -= currentBet;
+
+        UpdateVisuals();
+    }
     public void CalculateScore(int result)
     {
         playerChipCount += result * betMultiplier;
         dealerChipCount -= result * betMultiplier;
         UpdateVisuals();
     }
-
-
 
     private void RecalculateBets()
     {
@@ -106,11 +117,6 @@ public class BetManager : MonoBehaviour
 
         if (currentBet < minBet)
             currentBet = minBet;
-    }
-
-    private void UpdateVisuals()
-    {
-        chipBar.SetNetProgressFromChips(playerChipCount, dealerChipCount);
     }
 }
 

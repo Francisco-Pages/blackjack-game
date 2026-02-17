@@ -25,6 +25,12 @@ public class GameManager : MonoBehaviour
     private bool isPlayerTurn = false;
     [SerializeField] private int turnNumber = 0;
 
+    public static event Action<GameState> OnGameStateChanged;
+    public static event Action<RoundResult, int> OnRoundResolved;
+    public static event Action OnPlayerTurnStarted;
+    public static event Action OnPlayerTurnEnded;
+    public static event Action OnGameOver;
+    
     public enum GameState
     {
         StartRound,
@@ -63,22 +69,18 @@ public class GameManager : MonoBehaviour
     {
         CurrentState = newState;
 
+        // Broadcast to listeners
+        OnGameStateChanged?.Invoke(newState);
+
         switch (CurrentState)
         {
             case GameState.StartRound:
-                gsText.UpdateGamestateText("");
-                if (turnNumber == 0)
-                    gsText.UpdateGamestateText("Make your bet and press the deck to start.");
                 StartRound();
                 break;
             case GameState.Dealing:
-                if (turnNumber == 1)
-                    gsText.UpdateGamestateText("Good...Good.");
                 Dealing();
                 break;
             case GameState.PlayerTurn:
-                if (turnNumber == 1)
-                    gsText.UpdateGamestateText("Now, play a card from your hand.");    
                 PlayerTurn();
                 break;
             case GameState.DealerTurn:
@@ -149,12 +151,21 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Player's turn.");
         isPlayerTurn = true;
+        OnPlayerTurnStarted?.Invoke();
         CheckPlayerHand();
     }
+    private void EndPlayerTurn()
+    {
+        Debug.Log("Player turn ended.");
+        isPlayerTurn = false;
+        OnPlayerTurnEnded?.Invoke();
+    }
+
     private void DealerTurn()
     {
         Debug.Log("Dealer's turn.");
         isPlayerTurn = false;
+
         if (dealerHoleCard != null)
         {
             dealerHoleCard.SetFaceUp(true);
@@ -205,9 +216,8 @@ public class GameManager : MonoBehaviour
             gsText.UpdateGamestateText("Push.");
         }
 
-        int handsDiff = Math.Abs(playerValue - dealerValue);
+        int handsDiff = Math.Abs(playerValue - dealerValue);        
         betManager.ResolveBet(result, handsDiff);
-        // betManager.CalculateScore(resultScore);
         ChangeState(GameState.EndRound);
     }
     
@@ -241,6 +251,9 @@ public class GameManager : MonoBehaviour
     {
         gameOverScreen.SetActive(true);
         gameOverReason.text = gameOverText;
+
+        OnGameOver?.Invoke();
+        
         StopAllCoroutines();
     }
     public void ReloadGame()
@@ -297,10 +310,10 @@ public class GameManager : MonoBehaviour
         //     ChangeState(GameState.DealerTurn);
         // }
     }
-    private void EndPlayerTurn()
-    {
-        isPlayerTurn = false;
-    }
+    // private void EndPlayerTurn()
+    // {
+    //     isPlayerTurn = false;
+    // }
 
     public void OnClickedStand()
     {
