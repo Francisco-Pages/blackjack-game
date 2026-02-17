@@ -34,6 +34,14 @@ public class DeckManager : MonoBehaviour
     //     }
     // }
 
+    private void Start()
+    {
+        foreach (CardData card in deckData)
+        {
+            runningCount += GetCardCountValue(card);
+        }
+    }
+
     private void Update()
     {
         cardsInDeckText.text = deckData.Count.ToString();
@@ -109,6 +117,12 @@ public class DeckManager : MonoBehaviour
         
         
         return cardVisual;
+    }
+
+    public void AddCard(CardData cardData)
+    {
+        if (cardData != null)
+            deckData.Add(cardData);
     }
 
 }

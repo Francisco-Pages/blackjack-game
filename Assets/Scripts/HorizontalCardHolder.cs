@@ -22,6 +22,7 @@ public class HorizontalCardHolder : MonoBehaviour
     private Canvas canvas;
     [SerializeField] private TMP_Text handTotalVisual;
 
+    [SerializeField] private GameObject discardPile;
 
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
@@ -213,8 +214,9 @@ public class HorizontalCardHolder : MonoBehaviour
         for (int i=cards.Count-1; i>=0; i--)
         {
             cards[i].cardVisual.DOKill();
-            Destroy(cards[i].transform.parent.gameObject);
-            cards.RemoveAt(i);
+            // Destroy(cards[i].transform.parent.gameObject);
+            // cards.RemoveAt(i);
+            DiscardCard(cards[i]);
             yield return new WaitForSecondsRealtime(.2f);
         }
     }
@@ -303,8 +305,88 @@ public class HorizontalCardHolder : MonoBehaviour
         return cardVisual;
     }
 
-    public void SwapCard()
+        public void DiscardCard(Card discardedCard)
     {
+        if (cards.Count == 0)
+        {
+            return;
+        }
+
+        // create a slot prefab that holds the card's position, 
+        // and get the card object inside the card prefab
+        GameObject newCard = Instantiate(slotPrefab, discardPile.transform);
+        Card newCardScript = newCard.GetComponentInChildren<Card>();
         
+        newCardScript.cardData = discardedCard.cardData;
+        newCardScript.name = discardedCard.name;
+
+        discardedCard.cardVisual.parentCard = newCardScript;
+        discardedCard.cardVisual.cardTransform = newCardScript.transform;
+
+        newCardScript.cardVisual = discardedCard.cardVisual;
+        discardedCard.cardVisual = null;
+
+        newCardScript.cardVisual.SetFaceUp(false);
+        // playedCard.cardVisual.parentCard.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
+        // // parentCard.PointerExitEvent.AddListener(PointerExit);
+        // // parentCard.BeginDragEvent.AddListener(BeginDrag);
+        // // parentCard.EndDragEvent.AddListener(EndDrag);
+        // // parentCard.PointerDownEvent.AddListener(PointerDown);
+        // // parentCard.PointerUpEvent.AddListener(PointerUp);
+        // // parentCard.SelectEvent.AddListener(Select);
+
+        Destroy(discardedCard.transform.parent.gameObject);
+        cards.Remove(discardedCard);
+
+        // get the card area to anchor the cards to 
+        // and add the card to that card area cards list
+        HorizontalCardHolder cardGroupScript = discardPile.GetComponent<HorizontalCardHolder>();
+        cardGroupScript.cards.Add(newCardScript);
+
+
+        cardGroupScript.UpdateCardsList();
+        // give it an individual name, in this case the number of the card from the deck
+        
+        // get the visualHandler and canvas references
+        // visualHandler = FindFirstObjectByType<VisualCardsHandler>();
+        // canvas = GetComponentInParent<Canvas>();
+        
+        // // set the visuals to the card
+        // cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
+        // cardVisual.name = newCardScript.name;
+        // newCardScript.cardVisual = cardVisual;
+        // cardVisual.Initialize(newCardScript);
+
+        cardGroupScript.UpdateCardsList();
+        
+        // if (!faceUp)
+        // {
+        //     cardVisual.SetFaceUp(false, false);
+        //     faceDownCards.Add(cardVisual);
+        // }
+        // else
+        // {
+        //     runningCount += GetCardCountValue(newCardScript.cardData);
+        // }
+
+        // card object animations
+        newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
+        newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
+        // newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
+        // newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);  
+
+        // card visual object animations
+        newCardScript.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
+        newCardScript.PointerExitEvent.AddListener(newCardScript.cardVisual.PointerExit);
+        // newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
+        // newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
+        // newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
+        // newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
+        // newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
+    }
+
+    public void DiscardFirstCard()
+    {
+        DiscardCard(cards[0]);
     }
 }

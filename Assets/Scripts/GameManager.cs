@@ -107,7 +107,8 @@ public class GameManager : MonoBehaviour
             deckManager.deckData.Shuffle();
             StartCoroutine(DealInitialCardsToHand());
         }
-        else
+        
+        if (handCardHolderScript.cards.Count < 3 && turnNumber != 0)
         {
             StartCoroutine(DealCardToHand());
         }
@@ -344,9 +345,27 @@ public class GameManager : MonoBehaviour
         if (turnNumber == 1)
             gsText.UpdateGamestateText("Good...you didn't go over 21...or did you?");
     }
+
+    public void OnClickedDiscard()
+    {
+        if (CurrentState != GameState.PlayerTurn)
+        {
+            return;
+        }
+        StartCoroutine(DiscardSequence());
+
+    }
     public void OnClickedRestart()
     {
         ReloadGame();
+    }
+
+    private IEnumerator DiscardSequence()
+    {
+        deckManager.deckData.Shuffle();
+        handCardHolderScript.DiscardFirstCard();
+        yield return new WaitForSeconds(0.5f); // Small pause after player ends
+        deckManager.DealFaceCard(consumableCardGroup);
     }
 
     private IEnumerator DealerPlay()
