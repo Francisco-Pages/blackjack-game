@@ -289,17 +289,22 @@ public class HorizontalCardHolder : MonoBehaviour
         // card object animations
         newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
         newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
-        newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
-        newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);  
+        // newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
+        // newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);  
 
         // card visual object animations
         newCardScript.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
         newCardScript.PointerExitEvent.AddListener(newCardScript.cardVisual.PointerExit);
-        newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
-        newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
-        newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
-        newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
-        newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
+        // newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
+        // newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
+        // newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
+        // newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
+        // newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
         return cardVisual;
+    }
+
+    public void SwapCard()
+    {
+        
     }
 }

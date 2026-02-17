@@ -59,10 +59,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        ChangeState(GameState.StartRound);
         playerCardHolderScript = playingCardGroup.GetComponent<HorizontalCardHolder>();
         dealerCardHolderScript = jokerCardGroup.GetComponent<HorizontalCardHolder>();
         handCardHolderScript = consumableCardGroup.GetComponent<HorizontalCardHolder>();
+        ChangeState(GameState.StartRound);
     }
 
     public void ChangeState(GameState newState)
@@ -100,6 +100,8 @@ public class GameManager : MonoBehaviour
 
     private void StartRound()
     {
+        playerCardHolderScript.GetHandValue();
+        dealerCardHolderScript.GetHandValue();
         if (turnNumber == 0)
         {
             deckManager.deckData.Shuffle();
@@ -138,11 +140,12 @@ public class GameManager : MonoBehaviour
         {
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);
-            dealerHoleCard = deckManager.DealFaceCard(jokerCardGroup, false, false);
+            deckManager.DealFaceCard(jokerCardGroup);
+            dealerCardHolderScript.GetHandValue();
             yield return new WaitForSecondsRealtime(0.2f);
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);
-            deckManager.DealFaceCard(jokerCardGroup);
+            dealerHoleCard = deckManager.DealFaceCard(jokerCardGroup, false, false);
             ChangeState(GameState.PlayerTurn);
         }
 
@@ -253,7 +256,7 @@ public class GameManager : MonoBehaviour
         gameOverReason.text = gameOverText;
 
         OnGameOver?.Invoke();
-        
+
         StopAllCoroutines();
     }
     public void ReloadGame()
