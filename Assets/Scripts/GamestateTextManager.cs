@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class GamestateTextManager : MonoBehaviour
 {
@@ -25,11 +26,11 @@ public class GamestateTextManager : MonoBehaviour
         switch (state)
         {
             case GameManager.GameState.StartRound:
-                UpdateGamestateText("Make your bet and press the deck to start.");
+                UpdateGamestateText("Press the deck to start.");
                 break;
 
             case GameManager.GameState.PlayerTurn:
-                UpdateGamestateText("Your turn.");
+                UpdateGamestateText("Your turn. Hit, or stand. \nPlay or discard.");
                 break;
         }
     }
