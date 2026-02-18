@@ -69,6 +69,9 @@ public class DeckManager : MonoBehaviour
         {
             return null;
         }
+        // get the visualHandler and canvas references
+        visualHandler = FindFirstObjectByType<VisualCardsHandler>();
+        canvas = GetComponentInParent<Canvas>();
 
         // create a slot prefab that holds the card's position, 
         // and get the card object inside the card prefab
@@ -79,26 +82,10 @@ public class DeckManager : MonoBehaviour
         newCardScript.cardData = deckData[0];
         deckData.RemoveAt(0);
 
-        // get the card area to anchor the cards to 
-        // and add the card to that card area cards list
-        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
-        cardGroupScript.cards.Add(newCardScript);
-        cardGroupScript.UpdateCardsList();
-        // give it an individual name, in this case the number of the card from the deck
-        int cardIndex = deckData.Count + 1;
-        newCardScript.name = cardIndex.ToString();
-        
-        // get the visualHandler and canvas references
-        visualHandler = FindFirstObjectByType<VisualCardsHandler>();
-        canvas = GetComponentInParent<Canvas>();
-        
         // set the visuals to the card
         cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
-        cardVisual.name = cardIndex.ToString();
         newCardScript.cardVisual = cardVisual;
         cardVisual.Initialize(newCardScript);
-
-        audioSource.PlayOneShot(clip);
         
         if (!faceUp)
         {
@@ -109,6 +96,19 @@ public class DeckManager : MonoBehaviour
         {
             runningCount += GetCardCountValue(newCardScript.cardData);
         }
+
+        // get the card area to anchor the cards to 
+        // and add the card to that card area cards list
+        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
+        cardGroupScript.cards.Add(newCardScript);
+        cardGroupScript.UpdateCardsList();
+        // give it an individual name, in this case the number of the card from the deck
+        int cardIndex = deckData.Count + 1;
+        newCardScript.name = cardIndex.ToString();
+        cardVisual.name = cardIndex.ToString();
+        
+        audioSource.PlayOneShot(clip);
+        
 
         newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
         newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);

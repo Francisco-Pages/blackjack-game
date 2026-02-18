@@ -20,42 +20,22 @@ public class HorizontalCardHolder : MonoBehaviour
     private VisualCardsHandler visualHandler;
     [HideInInspector] public CardVisual cardVisual;    
     private Canvas canvas;
-    [SerializeField] private TMP_Text handTotalVisual;
 
     [SerializeField] private GameObject discardPile;
 
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
-    public int totalValue = 0;
-    public int aceCount = 0;
+    // public int totalValue = 0;
+    // public int aceCount = 0;
 
+    public static event Action<GameObject> OnCardsListUpdated;
 
     public void Start()
     {
         rect = GetComponent<RectTransform>();
     }
 
-    public bool CheckBlackjack()
-    {
-        if (cards.Count == 2 && GetHandValue() == 21)
-        {
-            return true;
-        }
-        return false;
-    }
-    public int GetHandValue()
-    {
-        int currentAceCount = aceCount;
-        int currentTotalValue = totalValue;
-        while (currentTotalValue > 21 && currentAceCount > 0)
-        {
-            currentTotalValue -= 10;
-            currentAceCount--;
-        }
-        handTotalVisual.text = currentTotalValue.ToString();
-
-        return currentTotalValue;
-    }
+    
 
     public void BeginDrag(Card card)
     {
@@ -89,25 +69,8 @@ public class HorizontalCardHolder : MonoBehaviour
 
     public void UpdateCardsList()
     {
-        totalValue = 0;
-        aceCount = 0;
         cards = GetComponentsInChildren<Card>().ToList();
-        foreach (Card card in cards)
-        {
-            if ((int)card.cardData.rank == 1)
-            {
-                totalValue += 11;
-                aceCount ++;
-            }
-            else if ((int)card.cardData.rank >= 11)
-            {
-                totalValue += 10;
-            }
-            else
-            {
-                totalValue += (int)card.cardData.rank;
-            }
-        }
+        OnCardsListUpdated?.Invoke(gameObject);
         StartCoroutine(Frame());
 
         IEnumerator Frame()
@@ -263,7 +226,7 @@ public class HorizontalCardHolder : MonoBehaviour
         cardGroupScript.cards.Add(newCardScript);
 
 
-        cardGroupScript.UpdateCardsList();
+        this.UpdateCardsList();
         // give it an individual name, in this case the number of the card from the deck
         
         // get the visualHandler and canvas references
@@ -344,7 +307,7 @@ public class HorizontalCardHolder : MonoBehaviour
         cardGroupScript.cards.Add(newCardScript);
 
 
-        cardGroupScript.UpdateCardsList();
+        this.UpdateCardsList();
         // give it an individual name, in this case the number of the card from the deck
         
         // get the visualHandler and canvas references

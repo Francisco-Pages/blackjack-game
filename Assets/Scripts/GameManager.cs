@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     private HorizontalCardHolder handCardHolderScript;
     private CardVisual dealerHoleCard;
 
+    [SerializeField] private PlayArea playArea;
+
     [SerializeField] private BetManager betManager;
     [SerializeField] private GamestateTextManager gsText;
     [SerializeField] private GameObject gameOverScreen;
@@ -100,8 +102,8 @@ public class GameManager : MonoBehaviour
 
     private void StartRound()
     {
-        playerCardHolderScript.GetHandValue();
-        dealerCardHolderScript.GetHandValue();
+        playArea.GetPlayerHandValue();
+        playArea.GetDealerHandValue();
         if (turnNumber == 0)
         {
             deckManager.deckData.Shuffle();
@@ -142,7 +144,7 @@ public class GameManager : MonoBehaviour
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);
             deckManager.DealFaceCard(jokerCardGroup);
-            dealerCardHolderScript.GetHandValue();
+            playArea.GetDealerHandValue();
             yield return new WaitForSecondsRealtime(0.2f);
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);
@@ -181,13 +183,13 @@ public class GameManager : MonoBehaviour
     }
     private void ResolveRound()
     {
-        int playerValue = playerCardHolderScript.GetHandValue();
-        int dealerValue = dealerCardHolderScript.GetHandValue();
+        int playerValue = playArea.GetPlayerHandValue();
+        int dealerValue = playArea.GetDealerHandValue();
         Debug.Log($"Player: {playerValue} | Dealer: {dealerValue}");
 
         RoundResult result;
 
-        if (playerCardHolderScript.CheckBlackjack())
+        if (playArea.CheckBlackjack())
         {
             result = RoundResult.BlackJack;
             gsText.UpdateGamestateText("Blackjack!");
@@ -299,7 +301,7 @@ public class GameManager : MonoBehaviour
     }
     private void CheckPlayerHand()
     {
-        int handValue = playerCardHolderScript.GetHandValue();
+        int handValue = playArea.GetPlayerHandValue();
 
         if (handValue > 21)
         {
@@ -372,7 +374,7 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f); // Small pause after player ends
 
-        int dealerValue = dealerCardHolderScript.GetHandValue();
+        int dealerValue = playArea.GetDealerHandValue();
 
         gsText.UpdateGamestateText("Dealer starting value: " + dealerValue);
 
@@ -384,7 +386,7 @@ public class GameManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.6f); // Deal delay
 
-            dealerValue = dealerCardHolderScript.GetHandValue();
+            dealerValue = playArea.GetDealerHandValue();
 
             gsText.UpdateGamestateText("Dealer value now: " + dealerValue);
         }

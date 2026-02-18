@@ -73,6 +73,22 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     //     }
     // }
 
+    public int GetCardValue()
+    {
+        if ((int)cardData.rank == 1)
+        {
+            return 11;
+        }
+        else if ((int)cardData.rank >= 11)
+        {
+            return 10;
+        }
+        else
+        {
+            return (int)cardData.rank;
+        }
+    }
+
     void ClampPosition()
     {
         Vector2 screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
