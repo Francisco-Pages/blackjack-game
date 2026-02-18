@@ -176,6 +176,7 @@ public class GameManager : MonoBehaviour
         {
             dealerHoleCard.SetFaceUp(true);
             deckManager.runningCount += deckManager.GetCardCountValue(dealerHoleCard.parentCard.cardData);
+            dealerCardHolderScript.UpdateCardsList();
             deckManager.faceDownCards.Remove(dealerHoleCard);
             
         }
@@ -229,6 +230,7 @@ public class GameManager : MonoBehaviour
     
     private void EndRound()
     {
+        playArea.ResetHandCounts();
         // delete all cards (or send them to a discard pile)
         StartCoroutine(RemoveCardsSequential());
 

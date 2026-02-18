@@ -3,6 +3,7 @@ using TMPro;
 
 public class PlayArea : MonoBehaviour
 {
+    [SerializeField] private DeckManager deck;
     [SerializeField] private HorizontalCardHolder dealerHand;
     [SerializeField] private HorizontalCardHolder playerHand;
 
@@ -15,6 +16,14 @@ public class PlayArea : MonoBehaviour
     public int playerHandTotal;
     public int playerAceCount;
 
+    [SerializeField] private TMP_Text loseProbabilityText;
+    public float loseProbability;
+
+    private void Update()
+    {
+        loseProbability = GetBustProbability();
+        loseProbabilityText.text = $"Chance of losing: {loseProbability*100}%";
+    }
     private void OnEnable()
     {
         HorizontalCardHolder.OnCardsListUpdated += UpdateHandTotal;
@@ -38,6 +47,8 @@ public class PlayArea : MonoBehaviour
                 if (cardValue == 11)
                     playerAceCount++;
             }
+            playerHandTotal = GetPlayerHandValue();
+            
         }
         if (cardHolderObj.GetComponent<HorizontalCardHolder>() == dealerHand)
         {
@@ -55,6 +66,7 @@ public class PlayArea : MonoBehaviour
                         dealerAceCount++;
                 }
             }
+            dealerHandTotal = GetDealerHandValue();
         }
     }
 
@@ -93,5 +105,35 @@ public class PlayArea : MonoBehaviour
         dealerHandTotalVisual.text = currentTotalValue.ToString();
 
         return currentTotalValue;
+    }
+
+    public float GetBustProbability()
+    {
+        int minBustCard = 21 - playerHandTotal;
+        int bustCardsCount = 0;
+        foreach (CardData card in deck.deckData)
+        {
+            int cardRank = (int)card.rank;
+            if (cardRank > 11)
+            {
+                cardRank = 10;
+            }
+
+            if (cardRank > minBustCard)
+            {
+                bustCardsCount++;
+            }
+        }
+        float bustProbability = bustCardsCount / (float)deck.deckData.Count;
+        return bustProbability;
+    }
+
+    public void ResetHandCounts()
+    {
+        dealerHandTotal = 0;
+        dealerAceCount = 0;
+
+        playerHandTotal = 0;
+        playerAceCount = 0;
     }
 }
