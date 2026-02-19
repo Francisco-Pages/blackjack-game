@@ -361,6 +361,22 @@ public class CardVisual : MonoBehaviour
         initalize = true;
     }
 
+    private void PlayThresholdFeedback()
+    {
+        if (!parentCard.isDragging) return;
+
+        float draggedY = cardTransform.position.y;
+
+        if (draggedY > - 1.5)
+        {
+            transform.DOScale(1.5f, 0.1f);
+        }
+        else
+        {
+            transform.DOScale(scaleOnSelect, 0.1f);
+        }
+    }
+
     /* =========================
        FLIP LOGIC
     ========================= */
@@ -416,11 +432,11 @@ public class CardVisual : MonoBehaviour
     void Update()
     {
         if (!initalize || parentCard == null) return;
-
         HandPositioning();
         SmoothFollow();
         FollowRotation();
         CardTilt();
+        PlayThresholdFeedback();
     }
 
     public void UpdateIndex(int length)

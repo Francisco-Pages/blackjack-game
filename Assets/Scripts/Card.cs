@@ -60,18 +60,18 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
         
     }
 
-    // void Update()
-    // {
-    //     ClampPosition();
+    void Update()
+    {
+        ClampPosition();
 
-    //     if (isDragging)
-    //     {
-    //         Vector2 targetPosition = Camera.main.ScreenToWorldPoint(Pointer.current.position.ReadValue()) - offset;
-    //         Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
-    //         Vector2 velocity = direction * Mathf.Min(moveSpeedLimit, Vector2.Distance(transform.position, targetPosition) / Time.deltaTime);
-    //         transform.Translate(velocity * Time.deltaTime);
-    //     }
-    // }
+        if (isDragging)
+        {
+            Vector2 targetPosition = Camera.main.ScreenToWorldPoint(Pointer.current.position.ReadValue()) - offset;
+            Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
+            Vector2 velocity = direction * Mathf.Min(moveSpeedLimit, Vector2.Distance(transform.position, targetPosition) / Time.deltaTime);
+            transform.Translate(velocity * Time.deltaTime);
+        }
+    }
 
     public int GetCardValue()
     {

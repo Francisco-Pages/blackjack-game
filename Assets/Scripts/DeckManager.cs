@@ -112,8 +112,8 @@ public class DeckManager : MonoBehaviour
 
         newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
         newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
-        // newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
-        // newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);        
+        newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
+        newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);        
         
         
         return cardVisual;

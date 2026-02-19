@@ -22,11 +22,15 @@ public class HorizontalCardHolder : MonoBehaviour
     private Canvas canvas;
 
     [SerializeField] private GameObject discardPile;
+    [SerializeField] private GameObject playerCardArea;
+    private float playThresholdY = -1.5f; 
 
     bool isCrossing = false;
     [SerializeField] private bool tweenCardReturn = true;
     // public int totalValue = 0;
     // public int aceCount = 0;
+    public float draggedY;
+    [SerializeField] private bool isHolderPlayable = false;
 
     public static event Action<GameObject> OnCardsListUpdated;
 
@@ -47,6 +51,17 @@ public class HorizontalCardHolder : MonoBehaviour
     {
         if (selectedCard == null)
             return;
+
+        if (isHolderPlayable)
+        {
+            draggedY = selectedCard.transform.position.y;
+            if (draggedY > playThresholdY)
+            {
+                PlayCard(playerCardArea);
+                selectedCard = null;
+                return;
+            } 
+        }
 
         selectedCard.transform.DOLocalMove(selectedCard.selected ? new Vector3(0,selectedCard.selectionOffset,0) : Vector3.zero, tweenCardReturn ? .15f : 0).SetEase(Ease.OutBack);
 
@@ -184,20 +199,18 @@ public class HorizontalCardHolder : MonoBehaviour
         }
     }
 
-
-    public CardVisual PlayCardFromHand(GameObject cardGroup)
+    public void PlayCard(GameObject toCardHolderObj)
     {
+        HorizontalCardHolder toCardHolderScript = toCardHolderObj.GetComponent<HorizontalCardHolder>();
+
         if (cards.Count == 0)
         {
-            return null;
+            return;
         }
 
-        Card playedCard = cards[0];
+        Card playedCard = selectedCard;
 
-
-        // create a slot prefab that holds the card's position, 
-        // and get the card object inside the card prefab
-        GameObject newCard = Instantiate(slotPrefab, cardGroup.transform);
+        GameObject newCard = Instantiate(slotPrefab, toCardHolderObj.transform);
         Card newCardScript = newCard.GetComponentInChildren<Card>();
         
         newCardScript.cardData = playedCard.cardData;
@@ -206,66 +219,36 @@ public class HorizontalCardHolder : MonoBehaviour
         playedCard.cardVisual.parentCard = newCardScript;
         playedCard.cardVisual.cardTransform = newCardScript.transform;
 
+        if (playedCard.cardVisual.faceUp == false)
+        {
+            playedCard.cardVisual.SetFaceUp(true);
+        }
+
         newCardScript.cardVisual = playedCard.cardVisual;
         playedCard.cardVisual = null;
-
-        // playedCard.cardVisual.parentCard.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
-        // // parentCard.PointerExitEvent.AddListener(PointerExit);
-        // // parentCard.BeginDragEvent.AddListener(BeginDrag);
-        // // parentCard.EndDragEvent.AddListener(EndDrag);
-        // // parentCard.PointerDownEvent.AddListener(PointerDown);
-        // // parentCard.PointerUpEvent.AddListener(PointerUp);
-        // // parentCard.SelectEvent.AddListener(Select);
 
         Destroy(playedCard.transform.parent.gameObject);
         cards.Remove(playedCard);
 
-        // get the card area to anchor the cards to 
-        // and add the card to that card area cards list
-        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
-        cardGroupScript.cards.Add(newCardScript);
+        toCardHolderScript.cards.Add(newCardScript);
 
-
-        this.UpdateCardsList();
-        // give it an individual name, in this case the number of the card from the deck
-        
-        // get the visualHandler and canvas references
-        // visualHandler = FindFirstObjectByType<VisualCardsHandler>();
-        // canvas = GetComponentInParent<Canvas>();
-        
-        // // set the visuals to the card
-        // cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
-        // cardVisual.name = newCardScript.name;
-        // newCardScript.cardVisual = cardVisual;
-        // cardVisual.Initialize(newCardScript);
-
-        cardGroupScript.UpdateCardsList();
-        
-        // if (!faceUp)
-        // {
-        //     cardVisual.SetFaceUp(false, false);
-        //     faceDownCards.Add(cardVisual);
-        // }
-        // else
-        // {
-        //     runningCount += GetCardCountValue(newCardScript.cardData);
-        // }
+        UpdateCardsList();
+        toCardHolderScript.UpdateCardsList();
 
         // card object animations
-        newCardScript.PointerEnterEvent.AddListener(cardGroupScript.CardPointerEnter);
-        newCardScript.PointerExitEvent.AddListener(cardGroupScript.CardPointerExit);
-        // newCardScript.BeginDragEvent.AddListener(cardGroupScript.BeginDrag);
-        // newCardScript.EndDragEvent.AddListener(cardGroupScript.EndDrag);  
+        newCardScript.PointerEnterEvent.AddListener(toCardHolderScript.CardPointerEnter);
+        newCardScript.PointerExitEvent.AddListener(toCardHolderScript.CardPointerExit);
+        newCardScript.BeginDragEvent.AddListener(toCardHolderScript.BeginDrag);
+        newCardScript.EndDragEvent.AddListener(toCardHolderScript.EndDrag);  
 
         // card visual object animations
         newCardScript.PointerEnterEvent.AddListener(newCardScript.cardVisual.PointerEnter);
         newCardScript.PointerExitEvent.AddListener(newCardScript.cardVisual.PointerExit);
-        // newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
-        // newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
-        // newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
-        // newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
-        // newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
-        return cardVisual;
+        newCardScript.BeginDragEvent.AddListener(newCardScript.cardVisual.BeginDrag);
+        newCardScript.EndDragEvent.AddListener(newCardScript.cardVisual.EndDrag);
+        newCardScript.PointerDownEvent.AddListener(newCardScript.cardVisual.PointerDown);
+        newCardScript.PointerUpEvent.AddListener(newCardScript.cardVisual.PointerUp);
+        newCardScript.SelectEvent.AddListener(newCardScript.cardVisual.Select);
     }
 
         public void DiscardCard(Card discardedCard)
@@ -311,14 +294,14 @@ public class HorizontalCardHolder : MonoBehaviour
         // give it an individual name, in this case the number of the card from the deck
         
         // get the visualHandler and canvas references
-        // visualHandler = FindFirstObjectByType<VisualCardsHandler>();
-        // canvas = GetComponentInParent<Canvas>();
+        visualHandler = FindFirstObjectByType<VisualCardsHandler>();
+        canvas = GetComponentInParent<Canvas>();
         
         // // set the visuals to the card
-        // cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
-        // cardVisual.name = newCardScript.name;
-        // newCardScript.cardVisual = cardVisual;
-        // cardVisual.Initialize(newCardScript);
+        cardVisual = Instantiate(cardVisualPrefab, visualHandler ? visualHandler.transform : canvas.transform).GetComponent<CardVisual>();
+        cardVisual.name = newCardScript.name;
+        newCardScript.cardVisual = cardVisual;
+        cardVisual.Initialize(newCardScript);
 
         cardGroupScript.UpdateCardsList();
         

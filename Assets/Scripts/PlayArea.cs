@@ -41,14 +41,11 @@ public class PlayArea : MonoBehaviour
             playerAceCount = 0;
             foreach (Card card in playerHand.cards)
             {
-                Debug.Log(card.name);
                 int cardValue = card.GetCardValue();
                 playerHandTotal += cardValue;
                 if (cardValue == 11)
                     playerAceCount++;
-            }
-            playerHandTotal = GetPlayerHandValue();
-            
+            }            
         }
         if (cardHolderObj.GetComponent<HorizontalCardHolder>() == dealerHand)
         {
@@ -59,14 +56,12 @@ public class PlayArea : MonoBehaviour
             {
                 if (card.cardVisual != null && card.cardVisual.faceUp)
                 {
-                    Debug.Log(card.name);
                     int cardValue = card.GetCardValue();
                     dealerHandTotal += cardValue;
                     if (cardValue == 11)
                         dealerAceCount++;
                 }
             }
-            dealerHandTotal = GetDealerHandValue();
         }
     }
 
@@ -130,9 +125,11 @@ public class PlayArea : MonoBehaviour
 
     public void ResetHandCounts()
     {
+        dealerHandTotalVisual.text = 0.ToString();
         dealerHandTotal = 0;
         dealerAceCount = 0;
 
+        playerHandTotalVisual.text = 0.ToString();
         playerHandTotal = 0;
         playerAceCount = 0;
     }

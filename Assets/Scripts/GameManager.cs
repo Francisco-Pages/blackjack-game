@@ -102,8 +102,7 @@ public class GameManager : MonoBehaviour
 
     private void StartRound()
     {
-        playArea.GetPlayerHandValue();
-        playArea.GetDealerHandValue();
+        playArea.ResetHandCounts();
         if (turnNumber == 0)
         {
             deckManager.deckData.Shuffle();
@@ -344,7 +343,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        handCardHolderScript.PlayCardFromHand(playingCardGroup);
+        handCardHolderScript.PlayCard(playingCardGroup);
         CheckPlayerHand();
         if (turnNumber == 1)
             gsText.UpdateGamestateText("Good...you didn't go over 21...or did you?");
