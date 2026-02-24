@@ -111,7 +111,7 @@ public class PlayArea : MonoBehaviour
 
     public float GetBustProbability()
     {
-        int minBustCard = 21 - playerHandTotal;
+        int minBustCard = 21 - GetPlayerHandValue();
         int bustCardsCount = 0;
         foreach (CardData card in deck.deckData)
         {

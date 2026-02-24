@@ -390,6 +390,25 @@ public class CardVisual : MonoBehaviour
     }
 
     /* =========================
+       DISCARD ANIMATION
+    ========================= */
+
+    public void FlyToDiscard(Vector3 worldPos, System.Action onArrived = null, float duration = 0.35f)
+    {
+        initalize = false;
+        DOTween.Kill(transform, true);
+
+        transform.eulerAngles = Vector3.zero;
+        shakeParent.localRotation = Quaternion.identity;
+        tiltParent.localRotation = Quaternion.identity;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Append(transform.DOMove(worldPos, duration).SetEase(Ease.InBack));
+        seq.Join(transform.DOScale(0.75f, duration).SetEase(Ease.InQuad));
+        seq.OnComplete(() => onArrived?.Invoke());
+    }
+
+    /* =========================
        FLIP LOGIC
     ========================= */
 

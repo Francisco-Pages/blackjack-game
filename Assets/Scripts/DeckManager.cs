@@ -6,6 +6,7 @@ using UnityEngine.PlayerLoop;
 using Unity.VisualScripting;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 public class DeckManager : MonoBehaviour
 {
 
@@ -61,7 +62,7 @@ public class DeckManager : MonoBehaviour
     private void HandleCardDiscarded(CardData cardData)
     {
         deckData.Add(cardData);
-        StartCoroutine(AddTopCard());
+        // StartCoroutine(AddTopCard());
     }
 
     private void Start()
@@ -78,22 +79,24 @@ public class DeckManager : MonoBehaviour
         for (int i = 0; i < deckData.Count; i++)
         {
             GameObject img = Instantiate(deckImagePrefab, deckPosition.transform);
-
-            deckTopPosition = new Vector3(i * 0.3f,i * 0.3f,0f);
+            deckTopPosition = new Vector3(i * 0.3f, i * 0.3f, 0f);
             img.transform.localPosition = deckTopPosition;
+            img.transform.localScale = Vector3.one * 0.75f;
             yield return new WaitForSecondsRealtime(0.01f);
         }
         yield return new WaitForSecondsRealtime(0.7f);
     }
+
     public IEnumerator AddTopCard()
     {
-        yield return new WaitForSecondsRealtime(0.8f);
         for (int i = 0; i < deckData.Count; i++)
         {
-            deckTopPosition = new Vector3(i * 0.3f,i * 0.3f,0f);
+            deckTopPosition = new Vector3(i * 0.3f, i * 0.3f, 0f);
         }
         GameObject img = Instantiate(deckImagePrefab, deckPosition.transform);
         img.transform.localPosition = deckTopPosition;
+        img.transform.localScale = Vector3.one * 0.75f;
+        yield break;
     }
 
     private void Update()
@@ -139,8 +142,10 @@ public class DeckManager : MonoBehaviour
         // set the visuals to the card
         CardVisual cardVisual = Instantiate(cardVisualPrefab, transform).GetComponent<CardVisual>();
         cardVisual.transform.localPosition = deckTopPosition;
+        cardVisual.transform.localScale = Vector3.one * 0.75f;
         newCardScript.cardVisual = cardVisual;
         cardVisual.Initialize(newCardScript);
+        cardVisual.transform.DOScale(1f, 0.4f).SetEase(Ease.OutBack);
         
         if (!faceUp)
         {

@@ -17,11 +17,11 @@ public class HorizontalCardHolder : MonoBehaviour
     [SerializeField] private Card selectedCard;
     [SerializeReference] private Card hoveredCard;
     [SerializeField] private GameObject cardVisualPrefab;
-    private VisualCardsHandler visualHandler;
-    [HideInInspector] public CardVisual cardVisual;    
-    private Canvas canvas;
+    [HideInInspector] public CardVisual cardVisual;
 
     [SerializeField] private GameObject discardPile;
+    [SerializeField] private GameObject discardImagePrefab;
+    private int _discardPileCount = 0;
 
     [SerializeField] private GameObject playerCardArea;
     private float playThresholdY = -1.5f; 
@@ -344,21 +344,32 @@ public class HorizontalCardHolder : MonoBehaviour
 
     private IEnumerator DeleteCardAfterWait(Card cardToDiscard)
     {
-        GameObject newCard = Instantiate(slotPrefab, discardPile.transform);
-        Card newCardScript = newCard.GetComponentInChildren<Card>();
-        newCardScript.cardData = cardToDiscard.cardData;
+        Vector3 localTarget = new Vector3(_discardPileCount * 0.3f, _discardPileCount * 0.3f, 0f);
+        Vector3 flyTarget = discardPile.transform.TransformPoint(localTarget);
+        _discardPileCount++;
 
-        cardToDiscard.cardVisual.SetFaceUp(false);
-        cardToDiscard.cardVisual.parentCard = newCardScript;
-        cardToDiscard.cardVisual.cardTransform = newCardScript.transform;
-        newCardScript.cardVisual = cardToDiscard.cardVisual;
+        CardData discardedData = cardToDiscard.cardData;
+        CardVisual visual = cardToDiscard.cardVisual;
+
+        visual.SetFaceUp(false);
+
+        // Detach before destroying so Card.OnDestroy won't double-destroy the visual
         cardToDiscard.cardVisual = null;
         Destroy(cardToDiscard.transform.parent.gameObject);
 
-        OnCardDiscarded?.Invoke(cardToDiscard.cardData);
+        visual.FlyToDiscard(flyTarget, onArrived: () =>
+        {
+            if (discardImagePrefab != null)
+            {
+                GameObject img = Instantiate(discardImagePrefab, discardPile.transform);
+                img.transform.localPosition = localTarget;
+                img.transform.localScale = Vector3.one * 0.75f;
+            }
+            Destroy(visual.gameObject);
+            OnCardDiscarded?.Invoke(discardedData);
+        });
 
-        yield return new WaitForSecondsRealtime(1f);
-        Destroy(newCardScript.transform.parent.gameObject);
+        yield break;
     }
 
     public void DiscardFirstCard()
