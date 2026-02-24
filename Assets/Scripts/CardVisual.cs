@@ -393,7 +393,7 @@ public class CardVisual : MonoBehaviour
        DISCARD ANIMATION
     ========================= */
 
-    public void FlyToDiscard(Vector3 worldPos, System.Action onArrived = null, float duration = 0.35f)
+    public void FlyToDiscard(Vector3 worldPos, System.Action onArrived = null, float duration = 0.5f)
     {
         initalize = false;
         DOTween.Kill(transform, true);

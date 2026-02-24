@@ -350,6 +350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c73809c3b87e04a6dae1308b12ab4749, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initalize: 0
   parentCard: {fileID: 0}
   cardTransform: {fileID: 0}
   visualShadow: {fileID: 9157190824811683565}
@@ -359,7 +360,7 @@ MonoBehaviour:
   cardBackSprite: {fileID: 21300000, guid: a645499deac5944f593fdcd569acc1e7, type: 3}
   faceUp: 1
   flipDuration: 0.2
-  followSpeed: 7
+  followSpeed: 8
   rotationAmount: 70
   rotationSpeed: 50
   autoTiltAmount: 15
@@ -378,6 +379,9 @@ MonoBehaviour:
   swapTransition: 0.2
   swapVibrato: 5
   curve: {fileID: 11400000, guid: d4dd399fb2dab44429d866dc2259bb4b, type: 2}
+  playThresholdY: -1.5
+  playReadyScale: 1.5
+  playReadyTransition: 0.2
 --- !u!223 &4132845374223140069
 Canvas:
   m_ObjectHideFlags: 0

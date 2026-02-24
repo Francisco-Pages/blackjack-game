@@ -142,7 +142,6 @@ public class GameManager : MonoBehaviour
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);
             deckManager.DealFaceCard(jokerCardGroup);
-            playArea.GetDealerHandValue();
             yield return new WaitForSecondsRealtime(0.2f);
             deckManager.DealFaceCard(playingCardGroup);
             yield return new WaitForSecondsRealtime(0.2f);

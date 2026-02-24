@@ -365,11 +365,17 @@ public class HorizontalCardHolder : MonoBehaviour
                 img.transform.localPosition = localTarget;
                 img.transform.localScale = Vector3.one * 0.75f;
             }
-            Destroy(visual.gameObject);
+            StartCoroutine(PauseAfterArrive(visual));
+            // Destroy(visual.gameObject);
             OnCardDiscarded?.Invoke(discardedData);
         });
 
         yield break;
+    }
+    private IEnumerator PauseAfterArrive(CardVisual visual)
+    {
+        yield return new WaitForSecondsRealtime(0.1f);
+        Destroy(visual.gameObject);
     }
 
     public void DiscardFirstCard()
