@@ -29,15 +29,11 @@ public class BetManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnRoundResolved += HandleRoundResolved;
+        GameManager.OnRoundResolved += ResolveBet;
     }
     private void OnDisable()
     {
-        GameManager.OnRoundResolved -= HandleRoundResolved;
-    }
-    private void HandleRoundResolved(RoundResult result, int handsDiff)
-    {
-        ResolveBet(result, handsDiff);
+        GameManager.OnRoundResolved -= ResolveBet;
     }
     
     public void ResolveBet(RoundResult result, int handsDiff)

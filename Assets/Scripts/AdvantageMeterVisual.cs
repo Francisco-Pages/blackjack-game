@@ -1,21 +1,22 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class AdvantageMeterVisual : MonoBehaviour
 {
     [SerializeField] private TMP_Text runningCountText;
-    [SerializeField] private DeckManager deckManager;
-   
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    private void OnEnable()
     {
-        
+        DeckManager.OnRunningCountChanged += HandleRunningCountChanged;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
-        runningCountText.text = deckManager.runningCount.ToString("N0");
+        DeckManager.OnRunningCountChanged -= HandleRunningCountChanged;
+    }
+
+    private void HandleRunningCountChanged(int count)
+    {
+        runningCountText.text = count.ToString("N0");
     }
 }

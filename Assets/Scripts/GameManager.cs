@@ -18,7 +18,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayArea playArea;
 
     [SerializeField] private BetManager betManager;
-    [SerializeField] private GamestateTextManager gsText;
     [SerializeField] private GameObject gameOverScreen;
     [SerializeField] private TMP_Text gameOverReason;
     private string gameOverText;
@@ -28,6 +27,7 @@ public class GameManager : MonoBehaviour
 
     public static event Action<GameState> OnGameStateChanged;
     public static event Action<RoundResult, int> OnRoundResolved;
+    public static event Action<string> OnGameMessage;
     public static event Action OnPlayerTurnStarted;
     public static event Action OnPlayerTurnEnded;
     public static event Action OnGameOver;
@@ -170,13 +170,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("Dealer's turn.");
         isPlayerTurn = false;
 
-        foreach (CardVisual cardVisual in playArea.faceDownCards)
-        {
-            cardVisual.SetFaceUp(true);
-            deckManager.runningCount += deckManager.GetCardCountValue(cardVisual.parentCard.cardData);
-        }
-            playArea.faceDownCards.Clear();
-            dealerCardHolderScript.UpdateCardsList();
+        playArea.RevealFaceDownCards();
 
         StartCoroutine(DealerPlay());
     }
@@ -191,38 +185,38 @@ public class GameManager : MonoBehaviour
         if (playArea.CheckBlackjack())
         {
             result = RoundResult.BlackJack;
-            gsText.UpdateGamestateText("Blackjack!");
-        } 
+            OnGameMessage?.Invoke("Blackjack!");
+        }
         else if (playerValue > 21)
         {
             result = RoundResult.PlayerBust;
             playerValue = 0;
-            gsText.UpdateGamestateText("Player busts. Dealer wins.");
+            OnGameMessage?.Invoke("Player busts. Dealer wins.");
         }
         else if (dealerValue > 21)
         {
             result = RoundResult.DealerBust;
             dealerValue = 0;
-            gsText.UpdateGamestateText("Dealer busts. Player wins.");
+            OnGameMessage?.Invoke("Dealer busts. Player wins.");
         }
         else if (playerValue > dealerValue)
         {
             result = RoundResult.PlayerWin;
-            gsText.UpdateGamestateText("Player wins.");
+            OnGameMessage?.Invoke("Player wins.");
         }
         else if (dealerValue > playerValue)
         {
             result = RoundResult.DealerWin;
-            gsText.UpdateGamestateText("Dealer wins.");
+            OnGameMessage?.Invoke("Dealer wins.");
         }
         else
         {
             result = RoundResult.Push;
-            gsText.UpdateGamestateText("Push.");
+            OnGameMessage?.Invoke("Push.");
         }
 
-        int handsDiff = Math.Abs(playerValue - dealerValue);        
-        betManager.ResolveBet(result, handsDiff);
+        int handsDiff = Math.Abs(playerValue - dealerValue);
+        OnRoundResolved?.Invoke(result, handsDiff);
         ChangeState(GameState.EndRound);
     }
     
@@ -305,7 +299,7 @@ public class GameManager : MonoBehaviour
 
         if (handValue > 21)
         {
-            gsText.UpdateGamestateText("Player busts!");
+            OnGameMessage?.Invoke("Player busts!");
             EndPlayerTurn();
             ChangeState(GameState.ResolveRound);
         }
@@ -345,7 +339,7 @@ public class GameManager : MonoBehaviour
         handCardHolderScript.PlayCard(playingCardGroup);
         CheckPlayerHand();
         if (turnNumber == 1)
-            gsText.UpdateGamestateText("Good...you didn't go over 21...or did you?");
+            OnGameMessage?.Invoke("Good...you didn't go over 21...or did you?");
     }
 
     public void OnClickedDiscard()
@@ -376,11 +370,11 @@ public class GameManager : MonoBehaviour
 
         int dealerValue = playArea.GetDealerHandValue();
 
-        gsText.UpdateGamestateText("Dealer starting value: " + dealerValue);
+        OnGameMessage?.Invoke("Dealer starting value: " + dealerValue);
 
         while (dealerValue < 17)
         {
-            gsText.UpdateGamestateText("Dealer hits.");
+            OnGameMessage?.Invoke("Dealer hits.");
 
             deckManager.DealFaceCard(jokerCardGroup);
 
@@ -388,16 +382,16 @@ public class GameManager : MonoBehaviour
 
             dealerValue = playArea.GetDealerHandValue();
 
-            gsText.UpdateGamestateText("Dealer value now: " + dealerValue);
+            OnGameMessage?.Invoke("Dealer value now: " + dealerValue);
         }
 
         if (dealerValue > 21)
         {
-            gsText.UpdateGamestateText("Dealer busts!");
+            OnGameMessage?.Invoke("Dealer busts!");
         }
         else
         {
-            gsText.UpdateGamestateText("Dealer stands at " + dealerValue);
+            OnGameMessage?.Invoke("Dealer stands at " + dealerValue);
         }
 
         yield return new WaitForSeconds(0.5f);

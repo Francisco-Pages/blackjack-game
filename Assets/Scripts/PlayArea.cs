@@ -22,18 +22,20 @@ public class PlayArea : MonoBehaviour
 
     public List<CardVisual> faceDownCards;
 
-    private void Update()
-    {
-        loseProbability = GetBustProbability();
-        loseProbabilityText.text = $"Chance of losing: {loseProbability*100}%";
-    }
     private void OnEnable()
     {
         HorizontalCardHolder.OnCardsListUpdated += UpdateHandTotal;
+        DeckManager.OnCardDealtFaceDown += HandleCardDealtFaceDown;
     }
     private void OnDisable()
     {
         HorizontalCardHolder.OnCardsListUpdated -= UpdateHandTotal;
+        DeckManager.OnCardDealtFaceDown -= HandleCardDealtFaceDown;
+    }
+
+    private void HandleCardDealtFaceDown(CardVisual cardVisual)
+    {
+        faceDownCards.Add(cardVisual);
     }
     private void UpdateHandTotal(GameObject cardHolderObj)
     {
@@ -48,7 +50,9 @@ public class PlayArea : MonoBehaviour
                 playerHandTotal += cardValue;
                 if (cardValue == 11)
                     playerAceCount++;
-            }            
+            }
+            loseProbability = GetBustProbability();
+            loseProbabilityText.text = $"Chance of losing: {loseProbability*100}%";
         }
         if (cardHolderObj.GetComponent<HorizontalCardHolder>() == dealerHand)
         {
@@ -126,6 +130,17 @@ public class PlayArea : MonoBehaviour
         return bustProbability;
     }
 
+    public void RevealFaceDownCards()
+    {
+        foreach (CardVisual cardVisual in faceDownCards)
+        {
+            cardVisual.SetFaceUp(true);
+            deck.CountCard(cardVisual.parentCard.cardData);
+        }
+        faceDownCards.Clear();
+        dealerHand.UpdateCardsList();
+    }
+
     public void ResetHandCounts()
     {
         dealerHandTotalVisual.text = 0.ToString();
@@ -135,5 +150,7 @@ public class PlayArea : MonoBehaviour
         playerHandTotalVisual.text = 0.ToString();
         playerHandTotal = 0;
         playerAceCount = 0;
+
+        faceDownCards.Clear();
     }
 }

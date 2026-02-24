@@ -14,11 +14,13 @@ public class GamestateTextManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.OnGameStateChanged += HandleStateChanged;
+        GameManager.OnGameMessage += UpdateGamestateText;
     }
 
     private void OnDisable()
     {
         GameManager.OnGameStateChanged -= HandleStateChanged;
+        GameManager.OnGameMessage -= UpdateGamestateText;
     }
 
     private void HandleStateChanged(GameManager.GameState state)

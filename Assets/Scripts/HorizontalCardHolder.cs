@@ -33,6 +33,7 @@ public class HorizontalCardHolder : MonoBehaviour
     [SerializeField] private bool isHolderPlayable = false;
 
     public static event Action<GameObject> OnCardsListUpdated;
+    public static event Action<CardData> OnCardDiscarded;
 
     public void Start()
     {
@@ -343,8 +344,8 @@ public class HorizontalCardHolder : MonoBehaviour
     {
         GameObject newCard = Instantiate(slotPrefab, discardPile.transform);
         Card newCardScript = newCard.GetComponentInChildren<Card>();
+        newCardScript.cardData = cardToDiscard.cardData;
 
-        discardPile.GetComponent<DeckManager>().deckData.Add(cardToDiscard.cardData);
         cardToDiscard.cardVisual.SetFaceUp(false);
         cardToDiscard.cardVisual.parentCard = newCardScript;
         cardToDiscard.cardVisual.cardTransform = newCardScript.transform;
@@ -352,10 +353,10 @@ public class HorizontalCardHolder : MonoBehaviour
         cardToDiscard.cardVisual = null;
         Destroy(cardToDiscard.transform.parent.gameObject);
 
-        StartCoroutine(discardPile.GetComponent<DeckManager>().AddTopCard());
+        OnCardDiscarded?.Invoke(cardToDiscard.cardData);
+
         yield return new WaitForSecondsRealtime(1f);
         Destroy(newCardScript.transform.parent.gameObject);
-        
     }
 
     public void DiscardFirstCard()

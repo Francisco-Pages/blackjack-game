@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.PlayerLoop;
@@ -8,6 +9,9 @@ using TMPro;
 public class DeckManager : MonoBehaviour
 {
 
+    public static event Action<CardVisual> OnCardDealtFaceDown;
+    public static event Action<int> OnRunningCountChanged;
+
     [Header("Deck Cards")]
     public List<CardData> deckData;
     [SerializeField] private GameObject cardVisualPrefab;
@@ -15,7 +19,6 @@ public class DeckManager : MonoBehaviour
     [SerializeField] private TMP_Text cardsInDeckText;
     private VisualCardsHandler visualHandler;
 
-    [SerializeField] private PlayArea playArea;
     private Canvas canvas;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private Sprite cardBack;
@@ -25,7 +28,14 @@ public class DeckManager : MonoBehaviour
     public GameObject deckPosition;
     private Vector3 deckTopPosition;
 
-    public int runningCount;
+    private int _runningCount;
+    public int runningCount => _runningCount;
+
+    public void CountCard(CardData cardData)
+    {
+        _runningCount += GetCardCountValue(cardData);
+        OnRunningCountChanged?.Invoke(_runningCount);
+    }
 
     public AudioSource audioSource;
     public AudioClip clip;
@@ -38,13 +48,29 @@ public class DeckManager : MonoBehaviour
     //     }
     // }
 
+    private void OnEnable()
+    {
+        HorizontalCardHolder.OnCardDiscarded += HandleCardDiscarded;
+    }
+
+    private void OnDisable()
+    {
+        HorizontalCardHolder.OnCardDiscarded -= HandleCardDiscarded;
+    }
+
+    private void HandleCardDiscarded(CardData cardData)
+    {
+        deckData.Add(cardData);
+        StartCoroutine(AddTopCard());
+    }
+
     private void Start()
     {
         foreach (CardData card in deckData)
         {
-            runningCount += GetCardCountValue(card);
+            CountCard(card);
         }
-            StartCoroutine(FillDeck());
+        StartCoroutine(FillDeck());
     }
 
     private IEnumerator FillDeck()
@@ -119,11 +145,11 @@ public class DeckManager : MonoBehaviour
         if (!faceUp)
         {
             cardVisual.SetFaceUp(false, false);
-            playArea.faceDownCards.Add(cardVisual);
+            OnCardDealtFaceDown?.Invoke(cardVisual);
         }
         else
         {
-            runningCount += GetCardCountValue(newCardScript.cardData);
+            CountCard(newCardScript.cardData);
         }
         if (transform.childCount > 0)
         {
