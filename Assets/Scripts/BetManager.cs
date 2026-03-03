@@ -3,8 +3,8 @@ using UnityEngine;
 public class BetManager : MonoBehaviour
 {
     [Header("Chips")]
-    public int playerChipCount = 1000;
-    public int dealerChipCount = 1000;
+    public int playerChipCount = 100;
+    public int dealerChipCount = 50;
 
     [Header("Betting")]
     public int betMultiplier = 20;
@@ -29,41 +29,17 @@ public class BetManager : MonoBehaviour
 
     private void OnEnable()
     {
-        GameManager.OnRoundResolved += ResolveBet;
+        ScoringSystem.OnChipsCalculated += ApplyChipDelta;
     }
     private void OnDisable()
     {
-        GameManager.OnRoundResolved -= ResolveBet;
+        ScoringSystem.OnChipsCalculated -= ApplyChipDelta;
     }
-    
-    public void ResolveBet(RoundResult result, int handsDiff)
-    {
-        switch (result)
-        {
-            case RoundResult.BlackJack:
-                playerChipCount += handsDiff * betMultiplier * 2;
-                dealerChipCount -= handsDiff * betMultiplier * 2;
-                break;
-            case RoundResult.PlayerWin:
-                playerChipCount += handsDiff * betMultiplier;
-                dealerChipCount -= handsDiff * betMultiplier;
-                break;
-            case RoundResult.DealerWin:
-                dealerChipCount += handsDiff * betMultiplier;
-                playerChipCount -= handsDiff * betMultiplier;
-                break;
-            case RoundResult.PlayerBust:
-                playerChipCount -= handsDiff * betMultiplier;
-                dealerChipCount += handsDiff * betMultiplier;
-                break;
-            case RoundResult.DealerBust:
-                playerChipCount += handsDiff * betMultiplier;
-                dealerChipCount -= handsDiff * betMultiplier;
-                break;
-            case RoundResult.Push:
-                break;
-        }
 
+    private void ApplyChipDelta(int delta)
+    {
+        playerChipCount += delta;
+        dealerChipCount -= delta;
         currentBet = 0;
         UpdateVisuals();
     }

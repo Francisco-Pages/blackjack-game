@@ -25,6 +25,12 @@ public class GameManager : MonoBehaviour
     private bool isPlayerTurn = false;
     [SerializeField] private int turnNumber = 0;
 
+    private static readonly WaitForSecondsRealtime Wait02 = new(0.2f);
+    private static readonly WaitForSecondsRealtime Wait1  = new(1f);
+    private static readonly WaitForSecondsRealtime Wait3  = new(3f);
+    private static readonly WaitForSeconds         Wait05 = new(0.5f);
+    private static readonly WaitForSeconds         Wait06 = new(0.6f);
+
     public static event Action<GameState> OnGameStateChanged;
     public static event Action<RoundResult, int> OnRoundResolved;
     public static event Action<string> OnGameMessage;
@@ -116,17 +122,17 @@ public class GameManager : MonoBehaviour
 
         IEnumerator DealInitialCardsToHand()
         {
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(consumableCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(consumableCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(consumableCardGroup);
         }
         IEnumerator DealCardToHand()
         {
             deckManager.DealFaceCard(consumableCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
         }
     }
     private void Dealing()
@@ -140,11 +146,11 @@ public class GameManager : MonoBehaviour
         IEnumerator DealInitialHand()
         {
             deckManager.DealFaceCard(playingCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(jokerCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(playingCardGroup);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Wait02;
             deckManager.DealFaceCard(jokerCardGroup, false, false);
             ChangeState(GameState.PlayerTurn);
         }
@@ -221,8 +227,6 @@ public class GameManager : MonoBehaviour
     
     private void EndRound()
     {
-        playArea.ResetHandCounts();
-        // delete all cards (or send them to a discard pile)
         StartCoroutine(RemoveCardsSequential());
 
         if (betManager.playerChipCount <= 0)
@@ -261,6 +265,9 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator RemoveCardsSequential()
     {
+        // yield return Wait3;
+        yield return new WaitUntil(() => ScoreBreakdownUI.IsDismissed);
+        playArea.ResetHandCounts();
         foreach (Card card in playerCardHolderScript.cards)
         {
             card.cardVisual.SetFaceUp(false);
@@ -269,13 +276,12 @@ public class GameManager : MonoBehaviour
         {
             card.cardVisual.SetFaceUp(false);
         }
-        yield return new WaitForSecondsRealtime(0.2f);
-        yield return (playerCardHolderScript.EmptyCardHolder());
-        yield return new WaitForSecondsRealtime(0.2f);
-        yield return (dealerCardHolderScript.EmptyCardHolder());
-        yield return new WaitForSecondsRealtime(1f);
+        yield return Wait02;
+        yield return playerCardHolderScript.EmptyCardHolder();
+        yield return Wait02;
+        yield return dealerCardHolderScript.EmptyCardHolder();
+        yield return Wait1;
         ChangeState(GameState.StartRound);
-
     }
 
     public void OnClickedDealInitialHand()
@@ -362,13 +368,13 @@ public class GameManager : MonoBehaviour
         bool arrived = false;
         handCardHolderScript.DiscardFirstCard(onArrived: () => arrived = true);
         yield return new WaitUntil(() => arrived);
-        yield return new WaitForSecondsRealtime(0.2f);
+        yield return Wait02;
         deckManager.DealFaceCard(consumableCardGroup);
     }
 
     private IEnumerator DealerPlay()
     {
-        yield return new WaitForSeconds(0.5f); // Small pause after player ends
+        yield return Wait05; // Small pause after player ends
 
         int dealerValue = playArea.GetDealerHandValue();
 
@@ -380,7 +386,7 @@ public class GameManager : MonoBehaviour
 
             deckManager.DealFaceCard(jokerCardGroup);
 
-            yield return new WaitForSeconds(0.6f); // Deal delay
+            yield return Wait06; // Deal delay
 
             dealerValue = playArea.GetDealerHandValue();
 
@@ -396,7 +402,7 @@ public class GameManager : MonoBehaviour
             OnGameMessage?.Invoke("Dealer stands at " + dealerValue);
         }
 
-        yield return new WaitForSeconds(0.5f);
+        yield return Wait05;
 
         ChangeState(GameState.ResolveRound);
     }

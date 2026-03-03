@@ -116,7 +116,7 @@ public class PlayArea : MonoBehaviour
         foreach (CardData card in deck.deckData)
         {
             int cardRank = (int)card.rank;
-            if (cardRank > 11)
+            if (cardRank >= 11)
             {
                 cardRank = 10;
             }

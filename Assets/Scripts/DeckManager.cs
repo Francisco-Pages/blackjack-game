@@ -147,6 +147,11 @@ public class DeckManager : MonoBehaviour
         cardVisual.Initialize(newCardScript);
         cardVisual.transform.DOScale(1f, 0.4f).SetEase(Ease.OutBack);
 
+        // get the card area to anchor the cards to
+        // and add the card to that card area cards list
+        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
+        cardGroupScript.cards.Add(newCardScript);
+
         // Always start face-down
         cardVisual.SetFaceUp(false, false);
 
@@ -156,17 +161,14 @@ public class DeckManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(FlipMidTransfer(cardVisual, newCardScript.cardData));
+            StartCoroutine(FlipMidTransfer(cardVisual, newCardScript.cardData, cardGroupScript));
         }
         if (transform.childCount > 0)
         {
             Transform lastChild = deckPosition.transform.GetChild(deckPosition.transform.childCount - 1);
             Destroy(lastChild.gameObject);
         }
-        // get the card area to anchor the cards to 
-        // and add the card to that card area cards list
-        HorizontalCardHolder cardGroupScript = cardGroup.GetComponent<HorizontalCardHolder>();
-        cardGroupScript.cards.Add(newCardScript);
+
         cardGroupScript.UpdateCardsList();
         // give it an individual name, in this case the number of the card from the deck
         int cardIndex = deckData.Count + 1;
@@ -183,11 +185,12 @@ public class DeckManager : MonoBehaviour
         
     }
 
-    private IEnumerator FlipMidTransfer(CardVisual cardVisual, CardData cardData)
+    private IEnumerator FlipMidTransfer(CardVisual cardVisual, CardData cardData, HorizontalCardHolder holder)
     {
         yield return new WaitForSecondsRealtime(0.2f);
         cardVisual.SetFaceUp(true);
         CountCard(cardData);
+        holder.UpdateCardsList();
     }
 
     public void AddCard(CardData cardData)
