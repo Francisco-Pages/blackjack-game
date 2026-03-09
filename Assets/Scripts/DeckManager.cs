@@ -49,22 +49,6 @@ public class DeckManager : MonoBehaviour
     //     }
     // }
 
-    private void OnEnable()
-    {
-        HorizontalCardHolder.OnCardDiscarded += HandleCardDiscarded;
-    }
-
-    private void OnDisable()
-    {
-        HorizontalCardHolder.OnCardDiscarded -= HandleCardDiscarded;
-    }
-
-    private void HandleCardDiscarded(CardData cardData)
-    {
-        deckData.Add(cardData);
-        // StartCoroutine(AddTopCard());
-    }
-
     private void Start()
     {
         foreach (CardData card in deckData)

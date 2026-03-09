@@ -1,40 +1,89 @@
+# Blackjack Roguelike
 
-<p align="center">
-    <img width="400px" src="http://mixandjam.com/wp-content/uploads/2019/11/git.png">    
-</p>
+A Blackjack game with roguelike scoring mechanics built in Unity. Play hands, build win streaks, exploit suit synergies, and drain the dealer's chips before they drain yours.
 
-# Balatro's Game Feel | Mix and Jam
+> Base card feel and visual system adapted from [André Cardoso's Balatro Feel project](https://github.com/cardosoandre) (Mix and Jam).
 
-<p align="center">
-<img width="900px" src="http://mixandjam.com/wp-content/uploads/2024/04/Screenshot-2024-04-29-at-03.22.41.png">
-</p>
+---
 
-This is the official respository for the episode <b>#32</b> of the [Mix and Jam Youtube Channel](https://www.youtube.com/c/MixAndJam)!
+## What It Is
+
+Classic Blackjack rules extended with a scoring layer inspired by *Balatro*: every hand you win generates chips based on card values, suit combinations, hand composition, and your current win streak. The goal isn't just to beat 21 — it's to squeeze the most chip value out of every hand.
+
+---
+
+## Core Loop
+
+1. **Deal** — Two cards dealt to player and dealer (dealer's second card stays face-down)
+2. **Decide** — Hit, Stand, play or discard from your consumable hand
+3. **Resolve** — Dealer auto-plays to 17+, hands compared, chips transfer
+4. **Score** — Chips won/lost calculated with bonuses, multipliers, and streak modifiers
+5. **Repeat** — Until someone hits 0 chips or the deck runs dry
+
+---
+
+## Scoring System
+
+Scoring goes beyond win/lose. Each round calculates:
+
+**Base Chips**
+- Sum of all card values in your hand
+- Suit bonuses: Flush (+5), Zebra alternating colors (+3), All face cards (+4), Paired starting hand (+2)
+
+**Tier Multiplier** (based on how you won)
+- Blackjack (2-card 21): 2.0×
+- 3-card 21: 1.75×
+- 5+ card hand: 1.5×
+- Regular win: 1.0×
+- Push: 0.25×
+- Loss: −1.0×
+
+**Streak Multiplier** (consecutive wins)
+- 2 wins: 1.25× / 3 wins: 1.5× / 5 wins: 2.0× / 7+ wins: 3.0×
+
+All multipliers stack. A Blackjack on a 7-win streak hits 6.0× before hand bonuses.
+
+---
+
+## Implemented Features
+
+- Full 52-card deck with shuffle and running count tracking (Hi-Lo system)
+- Cards dealt face-down, flipped mid-transfer to destination
+- Real-time bust probability display based on remaining deck composition
+- Ace value automatically adjusts (11 → 1) to avoid busts
+- Three card holder areas: Player hand, Dealer hand, Consumable hand
+- Animated score breakdown UI reveals all calculation components after each hand
+- Chip economy: Player starts at 100, Dealer at 50 — zero-sum transfers each round
+- Game over states: lose all chips, deck depleted, or dealer goes bust
+
+---
+
+## Planned / Potential Directions
+
+- **Joker cards** — passive modifiers that alter scoring rules mid-run
+- **Shop phase** — spend chips between rounds on new cards or jokers
+- **Multiple decks / deck building** — draft and customize your deck composition
+- **Special card effects** — individual cards with unique scoring triggers
+- **Persistent progression** — unlockable jokers, card backs, or rule modifiers across runs
+- **Sound design pass** — full audio feedback for streaks, bonuses, and game events
+
+---
+
+## Tech Stack
+
+| | |
+|---|---|
+| Engine | Unity 6000.3.8f1 |
+| Language | C# |
+| Animation | DOTween |
+| UI | Unity UI + TextMesh Pro |
+| Input | Unity Input System |
+| Architecture | State machine, event-driven, singleton managers |
+
+---
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
--  Unity ver. 2022.3 or higher
-
-### Running the project
-
-After cloning or downloading the repository, open the root project folder in unity and press the Play button.
-
-You can see a running demo of the project in [this video](https://youtu.be/I1dAZuWurw4).
-
-## Built With
-
-* [DOTween](http://dotween.demigiant.com/) - DOTween is a fast, efficient, fully type-safe object-oriented animation engine for Unity, optimized for C# users, free and open-source, with tons of advanced features
-
-## Authors
-
-Game Development
-* **André Cardoso** - [Github](https://github.com/cardosoandre)
-<br>[![Twitter Follow](https://img.shields.io/twitter/follow/andre_mc.svg?style=social)](https://twitter.com/andre_mc)
-
-## License
-
-This project is licensed under the MIT License
+1. Clone or download the repo
+2. Open the root folder in Unity 6000.3 or higher
+3. Press Play
